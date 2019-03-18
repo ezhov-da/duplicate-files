@@ -1,4 +1,4 @@
-package ru.ezhov.diplicate.files;
+package ru.ezhov.duplicate.files;
 
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLInputFactory;

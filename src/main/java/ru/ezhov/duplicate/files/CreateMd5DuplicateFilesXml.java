@@ -1,4 +1,4 @@
-package ru.ezhov.diplicate.files;
+package ru.ezhov.duplicate.files;
 
 import javax.xml.bind.DatatypeConverter;
 import javax.xml.stream.XMLOutputFactory;
@@ -10,9 +10,7 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.security.MessageDigest;
 import java.util.ArrayList;
-import java.util.Iterator;
 import java.util.List;
-import java.util.concurrent.*;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 

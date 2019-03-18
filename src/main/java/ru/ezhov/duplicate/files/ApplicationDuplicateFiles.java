@@ -1,4 +1,4 @@
-package ru.ezhov.diplicate.files;
+package ru.ezhov.duplicate.files;
 
 import java.io.File;
 import java.nio.charset.StandardCharsets;
