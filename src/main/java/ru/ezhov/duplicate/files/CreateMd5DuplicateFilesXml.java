@@ -2,10 +2,10 @@ package ru.ezhov.duplicate.files;
 
 import javax.xml.bind.DatatypeConverter;
 import javax.xml.stream.XMLOutputFactory;
+import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.OutputStream;
+import java.io.*;
+import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.security.MessageDigest;
@@ -18,31 +18,35 @@ public class CreateMd5DuplicateFilesXml {
     private static final Logger LOG = Logger.getLogger(CreateMd5DuplicateFilesXml.class.getName());
 
     public void create(File root, File xmlReport) throws Exception {
-        List<Md5File> md5FileList = fillMd5FilesRecursive(root, new ArrayList<>());
-        try (OutputStream outputStream = new FileOutputStream(xmlReport)) {
+        try (Writer writer = new OutputStreamWriter(new FileOutputStream(xmlReport), StandardCharsets.UTF_8)) {
             LOG.log(Level.INFO, "начало записи xml файла");
-            XMLStreamWriter xmlStreamWriter = XMLOutputFactory.newInstance().createXMLStreamWriter(outputStream);
+            XMLStreamWriter xmlStreamWriter = XMLOutputFactory.newInstance().createXMLStreamWriter(writer);
             xmlStreamWriter.writeStartDocument();
             xmlStreamWriter.writeStartElement("files");
-            for (Md5File md5File : md5FileList) {
-                xmlStreamWriter.writeStartElement("file");
-                xmlStreamWriter.writeAttribute("md5", md5File.getMd5Stamp());
-                xmlStreamWriter.writeCharacters(md5File.getFile().getAbsolutePath());
-                xmlStreamWriter.writeEndElement();
-            }
+            fillMd5FilesRecursive(root, md5File -> {
+                try {
+                    xmlStreamWriter.writeStartElement("file");
+                    xmlStreamWriter.writeAttribute("md5", md5File.getMd5Stamp());
+                    xmlStreamWriter.writeCharacters(md5File.getFile().getAbsolutePath());
+                    xmlStreamWriter.writeEndElement();
+                } catch (XMLStreamException e) {
+                    e.printStackTrace();
+                }
+            });
             xmlStreamWriter.writeEndElement();
             xmlStreamWriter.writeEndDocument();
+            xmlStreamWriter.close();
             LOG.log(Level.INFO, "xml файл записан ''{0}''", xmlReport.getAbsolutePath());
         }
     }
 
-    private List<Md5File> fillMd5FilesRecursive(File file, List<Md5File> md5FileList) throws Exception {
+    private void fillMd5FilesRecursive(File file, MD5FileListener md5FileListener) throws Exception {
         if (file.isDirectory()) {
             LOG.log(Level.INFO, "обработка папки ''{0}''", file.getAbsolutePath());
             File[] files = file.listFiles();
             if (files != null) {
                 for (File f : files) {
-                    fillMd5FilesRecursive(f, md5FileList);
+                    fillMd5FilesRecursive(f, md5FileListener);
                 }
             }
         } else {
@@ -50,9 +54,12 @@ public class CreateMd5DuplicateFilesXml {
             md.update(Files.readAllBytes(Paths.get(file.getPath())));
             byte[] digest = md.digest();
             String myChecksum = DatatypeConverter.printHexBinary(digest).toLowerCase();
-            md5FileList.add(new Md5File(myChecksum, file));
+            md5FileListener.action(new Md5File(myChecksum, file));
         }
-        return md5FileList;
+    }
+
+    private interface MD5FileListener {
+        void action(Md5File md5File);
     }
 
     private class Md5File {

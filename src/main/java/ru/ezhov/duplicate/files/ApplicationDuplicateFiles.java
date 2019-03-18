@@ -19,7 +19,6 @@ public class ApplicationDuplicateFiles {
         } else if ("analyse".equals(args[0])) {
             analyse();
         }
-
     }
 
     private static void create() {
@@ -36,9 +35,12 @@ public class ApplicationDuplicateFiles {
     }
 
     private static void analyse() {
-        File root = new File("D:/изображения/жена-mi-20190317");
-        File xmlFileReport = new File("D:/duplicate-files-md5.xml");
-        File htmlFileReport = new File("D:/duplicate-files-md5.html");
+        String fileRootPath = System.getProperty("file.path.root");
+        String xmlFileReportPath = System.getProperty("file.path.report");
+        String htmlFileReportPath = System.getProperty("file.path.analyse.html.report");
+        File root = new File(fileRootPath);
+        File xmlFileReport = new File(xmlFileReportPath);
+        File htmlFileReport = new File(htmlFileReportPath);
         AnalyseMd5DuplicateFilesXml analyseMd5DuplicateFilesXml = new AnalyseMd5DuplicateFilesXml();
         try {
             Map<String, List<String>> map = analyseMd5DuplicateFilesXml.findDuplicate(xmlFileReport);
