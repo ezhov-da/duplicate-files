@@ -262,11 +262,11 @@ public class DuplicateFrame {
         public DuplicateFile(String path) {
             this.path = path;
             try {
-//                BufferedImage originalImage = ImageIO.read(new File(path));
-//                BufferedImage thumbnail = Thumbnails.of(originalImage)
-//                        .size(100, 100)
-//                        .asBufferedImage();
-//                imageIcon = thumbnail;
+                BufferedImage originalImage = ImageIO.read(new File(path));
+                BufferedImage thumbnail = Thumbnails.of(originalImage)
+                        .size(100, 100)
+                        .asBufferedImage();
+                imageIcon = thumbnail;
             } catch (Exception e) {
                 //пофигу, что не смогли уменьшить
             }
