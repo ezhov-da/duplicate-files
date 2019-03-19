@@ -51,8 +51,8 @@ public class DuplicateFrame {
         JPanel panel = new JPanel(new BorderLayout());
 
         AnalyseMd5DuplicateFilesXml analyseMd5DuplicateFilesXml = new AnalyseMd5DuplicateFilesXml();
-//        Map<String, List<String>> map = analyseMd5DuplicateFilesXml.findDuplicate(new File("D:/duplicate-files-terabyte-md5.xml"));
-        Map<String, List<String>> map = analyseMd5DuplicateFilesXml.findDuplicate(new File("D:/duplicate-files-md5.xml"));
+        Map<String, List<String>> map = analyseMd5DuplicateFilesXml.findDuplicate(new File("D:/duplicate-files-terabyte-md5.xml"));
+//        Map<String, List<String>> map = analyseMd5DuplicateFilesXml.findDuplicate(new File("D:/duplicate-files-md5.xml"));
         List<Map.Entry<String, List<String>>> entries = new ArrayList<>();
 
         for (Map.Entry<String, List<String>> entry : map.entrySet()) {
@@ -68,11 +68,36 @@ public class DuplicateFrame {
         int pages = (int) Math.ceil(entries.size() / 10D);
 
         JPanel panelPaginator = new JPanel();
+        List<JLabel> lastSelected = new ArrayList<>();
         for (int i = 1; i <= pages; i++) {
             JLabel label = new JLabel(i + "");
+            if (i == 1) {
+                label.setForeground(Color.RED);
+                lastSelected.add(label);
+            }
             label.setCursor(new Cursor(Cursor.HAND_CURSOR));
             Font font = label.getFont();
             label.setFont(new Font(font.getFontName(), Font.BOLD, font.getSize()));
+            label.addMouseListener(new MouseAdapter() {
+                private Font fontOriginal;
+
+                @Override
+                public void mouseEntered(MouseEvent e) {
+                    fontOriginal = label.getFont();
+                    SwingUtilities.invokeLater(() -> {
+                        label.setFont(new Font(font.getFontName(), Font.BOLD, font.getSize() + 3));
+                        label.setBorder(BorderFactory.createLineBorder(Color.RED));
+                    });
+                }
+
+                @Override
+                public void mouseExited(MouseEvent e) {
+                    SwingUtilities.invokeLater(() -> {
+                        label.setFont(fontOriginal);
+                        label.setBorder(null);
+                    });
+                }
+            });
             label.addMouseListener(new MouseAdapter() {
                 @Override
                 public void mouseReleased(MouseEvent e) {
@@ -87,6 +112,11 @@ public class DuplicateFrame {
                     }
                     treeTableModel[0] = createFrom(part);
                     SwingUtilities.invokeLater(() -> {
+                        if (!lastSelected.isEmpty()) {
+                            lastSelected.get(0).setForeground(label.getForeground());
+                            label.setForeground(Color.RED);
+                            lastSelected.add(0, label);
+                        }
                         treeTable.setTreeTableModel(treeTableModel[0]);
                         initTreeTable(treeTable);
                     });
@@ -94,7 +124,6 @@ public class DuplicateFrame {
             });
             panelPaginator.add(label);
         }
-
         treeTable.setTreeCellRenderer(new DefaultXTreeCellRenderer() {
             @Override
             public Component getTreeCellRendererComponent(JTree tree, Object value, boolean sel, boolean expanded, boolean leaf, int row, boolean hasFocus) {
