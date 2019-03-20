@@ -1,4 +1,4 @@
-package ru.ezhov.duplicate.files.gui;
+package ru.ezhov.duplicate.files.gui.analyse;
 
 import net.coobird.thumbnailator.Thumbnails;
 import org.jdesktop.swingx.JXTreeTable;
@@ -6,12 +6,11 @@ import org.jdesktop.swingx.tree.DefaultXTreeCellRenderer;
 import org.jdesktop.swingx.treetable.DefaultMutableTreeTableNode;
 import org.jdesktop.swingx.treetable.DefaultTreeTableModel;
 import org.jdesktop.swingx.treetable.TreeTableModel;
-import ru.ezhov.duplicate.files.AnalyseMd5DuplicateFilesXml;
+import ru.ezhov.duplicate.files.core.AnalyseMd5DuplicateFilesXml;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
-import javax.swing.table.TableModel;
 import java.awt.*;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
@@ -23,52 +22,50 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
 
-public class DuplicateFrame {
+public class AnalysePanel extends JPanel {
 
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(() ->
-        {
-            try {
-                UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
-            } catch (Throwable ex) {
-                //
-            }
-            try {
-                DuplicateFrame duplicateFrame = new DuplicateFrame();
-                JFrame frame = new JFrame("Дубликаты");
-                frame.add(duplicateFrame.createBasicPanel(), BorderLayout.CENTER);
-                frame.setSize(1000, 600);
-                frame.setLocationRelativeTo(null);
-                frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-                frame.setVisible(true);
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-        });
+    private DuplicateFilesToRemovePanel duplicateFilesToRemovePanel;
+    private List<MarkToDeleteFileListener> markToDeleteFileListeners = new ArrayList<>();
+
+    public AnalysePanel() throws Exception {
+        setLayout(new BorderLayout());
+        duplicateFilesToRemovePanel = new DuplicateFilesToRemovePanel();
+        addMarkToDeleteFileListener(duplicateFilesToRemovePanel);
+        init();
     }
 
-    private JPanel createBasicPanel() throws Exception {
-        JPanel panel = new JPanel(new BorderLayout());
+    public void addMarkToDeleteFileListener(MarkToDeleteFileListener markToDeleteFileListener) {
+        markToDeleteFileListeners.add(markToDeleteFileListener);
+    }
 
+    private void actionMark(String filePath) {
+        markToDeleteFileListeners.forEach(ml -> ml.mark(filePath));
+    }
+
+    private void actionRemoveMark(String filePath) {
+        markToDeleteFileListeners.forEach(ml -> ml.removeMark(filePath));
+    }
+
+    private void init() throws Exception {
         AnalyseMd5DuplicateFilesXml analyseMd5DuplicateFilesXml = new AnalyseMd5DuplicateFilesXml();
-        Map<String, List<String>> map = analyseMd5DuplicateFilesXml.findDuplicate(new File("D:/duplicate-files-terabyte-md5.xml"));
-//        Map<String, List<String>> map = analyseMd5DuplicateFilesXml.findDuplicate(new File("D:/duplicate-files-md5.xml"));
-        List<Map.Entry<String, List<String>>> entries = new ArrayList<>();
+//        Map<String, List<String>> map = analyseMd5DuplicateFilesXml.findDuplicate(new File("D:/duplicate-files-terabyte-md5.xml"));
+        Map<String, java.util.List<String>> map = analyseMd5DuplicateFilesXml.findDuplicate(new File("D:/duplicate-files-md5.xml"));
+        java.util.List<Map.Entry<String, java.util.List<String>>> entries = new ArrayList<>();
 
-        for (Map.Entry<String, List<String>> entry : map.entrySet()) {
+        for (Map.Entry<String, java.util.List<String>> entry : map.entrySet()) {
             if (entry.getValue().size() > 1) {
                 entries.add(entry);
             }
         }
 
-        List<Map.Entry<String, List<String>>> part = entries.subList(0, entries.size() > 10 ? 10 : entries.size());
+        java.util.List<Map.Entry<String, java.util.List<String>>> part = entries.subList(0, entries.size() > 10 ? 10 : entries.size());
         final TreeTableModel[] treeTableModel = {createFrom(part)};
         JXTreeTable treeTable = new JXTreeTable(treeTableModel[0]);
 
         int pages = (int) Math.ceil(entries.size() / 10D);
 
         JPanel panelPaginator = new JPanel();
-        List<JLabel> lastSelected = new ArrayList<>();
+        java.util.List<JLabel> lastSelected = new ArrayList<>();
         for (int i = 1; i <= pages; i++) {
             JLabel label = new JLabel(i + "");
             if (i == 1) {
@@ -102,7 +99,7 @@ public class DuplicateFrame {
                 @Override
                 public void mouseReleased(MouseEvent e) {
                     int pageNumber = Integer.valueOf(label.getText());
-                    List<Map.Entry<String, List<String>>> part;
+                    java.util.List<Map.Entry<String, java.util.List<String>>> part;
                     if (pageNumber - 1 == 0) {
                         part = entries.subList(0, entries.size() > 10 ? 10 : entries.size());
                     } else {
@@ -161,8 +158,19 @@ public class DuplicateFrame {
                     Object value = treeTable.getValueAt(row, 0);
                     if (value instanceof DuplicateFile) {
                         DuplicateFile duplicateFile = (DuplicateFile) value;
-                        duplicateFile.setMarkDeleted(true);
-                        SwingUtilities.invokeLater(treeTable::repaint);
+                        if (duplicateFile.isMarkDeleted()) {
+                            SwingUtilities.invokeLater(() -> {
+                                actionRemoveMark(duplicateFile.getPath());
+                                treeTable.repaint();
+                            });
+                            duplicateFile.setMarkDeleted(false);
+                        } else {
+                            SwingUtilities.invokeLater(() -> {
+                                actionMark(duplicateFile.getPath());
+                                treeTable.repaint();
+                                duplicateFile.setMarkDeleted(true);
+                            });
+                        }
                     }
                 }
             }
@@ -170,13 +178,17 @@ public class DuplicateFrame {
 
         initTreeTable(treeTable);
 
-        panel.add(new JScrollPane(treeTable), BorderLayout.CENTER);
-        panel.add(panelPaginator, BorderLayout.SOUTH);
-
-        return panel;
+        JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
+        splitPane.setLeftComponent(new JScrollPane(treeTable));
+        splitPane.setRightComponent(duplicateFilesToRemovePanel);
+        splitPane.setDividerLocation(0.5);
+        splitPane.setResizeWeight(0.7);
+        add(splitPane, BorderLayout.CENTER);
+        add(panelPaginator, BorderLayout.SOUTH);
     }
 
     private void initTreeTable(JXTreeTable treeTable) {
+        treeTable.setRowHeight(50);
         treeTable.getColumn(1).setCellRenderer(new DefaultTableCellRenderer() {
             @Override
             public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
@@ -218,7 +230,12 @@ public class DuplicateFrame {
             public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
                 JLabel label = (JLabel) super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
                 if (value instanceof DuplicateFile) {
-                    label.setIcon(new ImageIcon(getClass().getResource("/list-add_16x16.png")));
+                    DuplicateFile duplicateFile = (DuplicateFile) value;
+                    if (duplicateFile.isMarkDeleted()) {
+                        label.setIcon(new ImageIcon(getClass().getResource("/list-delete_16x16.png")));
+                    } else {
+                        label.setIcon(new ImageIcon(getClass().getResource("/list-add_16x16.png")));
+                    }
                     label.setHorizontalAlignment(SwingConstants.CENTER);
                 } else {
                     label.setIcon(null);
@@ -232,12 +249,14 @@ public class DuplicateFrame {
         treeTable.expandAll();
     }
 
-    private TreeTableModel createFrom(List<Map.Entry<String, List<String>>> entries) {
+    private TreeTableModel createFrom(java.util.List<Map.Entry<String, java.util.List<String>>> entries) {
         DefaultMutableTreeTableNode root = new DefaultMutableTreeTableNode("root");
         for (Map.Entry<String, List<String>> entry : entries) {
             DefaultMutableTreeTableNode hashNode = new DefaultMutableTreeTableNode(new Md5Hash(entry.getKey()));
             for (String filePath : entry.getValue()) {
-                hashNode.add(new DefaultMutableTreeTableNode(new DuplicateFile(filePath)));
+                DuplicateFile duplicateFile = new DuplicateFile(filePath);
+                duplicateFile.setMarkDeleted(duplicateFilesToRemovePanel.isMarkAsDeleted(filePath));
+                hashNode.add(new DefaultMutableTreeTableNode(duplicateFile));
             }
             root.add(hashNode);
         }
@@ -322,4 +341,5 @@ public class DuplicateFrame {
             return path;
         }
     }
+
 }

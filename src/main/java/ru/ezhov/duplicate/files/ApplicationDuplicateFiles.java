@@ -1,5 +1,8 @@
 package ru.ezhov.duplicate.files;
 
+import ru.ezhov.duplicate.files.core.AnalyseMd5DuplicateFilesXml;
+import ru.ezhov.duplicate.files.core.CreateMd5DuplicateFilesXml;
+
 import java.io.File;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
