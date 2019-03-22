@@ -6,7 +6,12 @@
 
     <groupId>ru.ezhov</groupId>
     <artifactId>duplicate-files</artifactId>
+    <packaging>pom</packaging>
     <version>1.0-SNAPSHOT</version>
+    <modules>
+        <module>duplicate-files-core</module>
+        <module>duplicate-files-gui-swing</module>
+    </modules>
 
     <name>duplicate-files</name>
 
@@ -16,21 +21,29 @@
         <maven.compiler.target>1.8</maven.compiler.target>
     </properties>
 
-    <dependencies>
-        <!-- https://mvnrepository.com/artifact/org.swinglabs/swingx -->
-        <dependency>
-            <groupId>org.swinglabs</groupId>
-            <artifactId>swingx</artifactId>
-            <version>1.6.1</version>
-        </dependency>
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>ru.ezhov</groupId>
+                <artifactId>duplicate-files-stamp-generator</artifactId>
+                <version>${parent.version}</version>
+            </dependency>
 
-        <dependency>
-            <groupId>net.coobird</groupId>
-            <artifactId>thumbnailator</artifactId>
-            <version>[0.4, 0.5)</version>
-        </dependency>
+            <dependency>
+                <groupId>ru.ezhov</groupId>
+                <artifactId>duplicate-files-stamp-analyzer</artifactId>
+                <version>${parent.version}</version>
+            </dependency>
 
-    </dependencies>
+            <dependency>
+                <groupId>junit</groupId>
+                <artifactId>junit</artifactId>
+                <version>4.12</version>
+                <scope>test</scope>
+            </dependency>
+
+        </dependencies>
+    </dependencyManagement>
 
     <build>
         <plugins>
