@@ -6,6 +6,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.io.File;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class StampPanel extends JPanel {
 
@@ -26,16 +27,16 @@ public class StampPanel extends JPanel {
     private void init() {
         setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createEmptyBorder(5, 5, 5, 5),
-                BorderFactory.createTitledBorder("Создание отпечатков для файлов")
+                BorderFactory.createTitledBorder("Создание отпечатков файлов")
         ));
 
-        textFieldRootPathFileStampGenerator = new JTextField();
+        textFieldRootPathFileStampGenerator = new JTextField("D:\\изображения\\жена-mi-20190317");
         buttonBrowseReportStampGenerator = new JButton("...");
         JPanel panelBrowseRootPathFile = new JPanel(new BorderLayout());
         panelBrowseRootPathFile.add(textFieldRootPathFileStampGenerator, BorderLayout.CENTER);
         panelBrowseRootPathFile.add(buttonBrowseReportStampGenerator, BorderLayout.EAST);
 
-        textFieldReportStampGenerator = new JTextField();
+        textFieldReportStampGenerator = new JTextField("D:\\1.xml");
         buttonBrowseFileRootPathFile = new JButton("...");
         JPanel panelBrowseReportFile = new JPanel(new BorderLayout());
         panelBrowseReportFile.add(textFieldReportStampGenerator, BorderLayout.CENTER);
@@ -102,6 +103,7 @@ public class StampPanel extends JPanel {
         private File root;
         private File report;
         private XmlFileBruteForceCreator xmlFileBruteForceCreator;
+        private AtomicInteger counterFiles = new AtomicInteger();
 
         public StampWorker(File root, File report) {
             this.root = root;
@@ -111,7 +113,10 @@ public class StampPanel extends JPanel {
 
         @Override
         protected void process(List<String> chunks) {
-            StampPanel.this.labelStampGeneratorInfo.setText(chunks.get(0));
+            String text =
+                    "<html>Обработано файлов: <b>" + counterFiles.get() +
+                            " </b>Сейчас: <i>" + chunks.get(0) + "</i>";
+            StampPanel.this.labelStampGeneratorInfo.setText(text);
         }
 
         @Override
@@ -120,10 +125,20 @@ public class StampPanel extends JPanel {
                 if (StampWorker.this.isCancelled()) {
                     xmlFileBruteForceCreator.stop();
                 }
+                counterFiles.incrementAndGet();
                 StampWorker.this.publish(absoluteFilePath);
             });
-            StampWorker.this.publish("Отпечатки файлов сохранены по пути: " + textFieldReportStampGenerator.getText());
             return null;
+        }
+
+        @Override
+        protected void done() {
+            String text =
+                    "<html>Обработано файлов: <b>" + counterFiles.get() +
+                            " </b>Отпечатки файлов сохранены по пути: " + textFieldReportStampGenerator.getText();
+            StampPanel.this.labelStampGeneratorInfo.setText(text);
+            buttonStartStampGenerator.setEnabled(true);
+            buttonStopStampGenerator.setEnabled(false);
         }
     }
 }

@@ -32,8 +32,8 @@ public class XmlFileBruteForceCreator {
             LOG.log(Level.CONFIG, "начало записи xml файла");
             XMLStreamWriter xmlStreamWriter = XMLOutputFactory.newInstance().createXMLStreamWriter(writer);
             xmlStreamWriter.writeStartDocument("UTF-8", "1.0");
-            xmlStreamWriter.writeStartElement("duplicate-files-application");
-            xmlStreamWriter.writeAttribute("engine", "stamp-generator");
+            xmlStreamWriter.writeStartElement("duplicate-files");
+            xmlStreamWriter.writeAttribute("type", "stamps");
             xmlStreamWriter.writeAttribute("version", "0.1");
             xmlStreamWriter.writeStartElement("files");
             try {

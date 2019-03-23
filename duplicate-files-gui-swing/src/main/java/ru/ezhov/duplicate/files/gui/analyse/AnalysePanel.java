@@ -7,11 +7,14 @@ import org.jdesktop.swingx.treetable.DefaultMutableTreeTableNode;
 import org.jdesktop.swingx.treetable.DefaultTreeTableModel;
 import org.jdesktop.swingx.treetable.TreeTableModel;
 import ru.ezhov.duplicate.files.core.stamp.generator.service.stamp.analyzer.service.DuplicateFilesAnalyserService;
+import ru.ezhov.duplicate.files.gui.delete.queue.DuplicateFilesToRemovePanel;
 
 import javax.imageio.ImageIO;
 import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
 import java.awt.*;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.image.BufferedImage;
@@ -24,13 +27,15 @@ import java.util.Map;
 
 public class AnalysePanel extends JPanel {
 
+    private JTextField textFieldFileStampGenerator;
+    private JButton buttonBrowseFileStampGenerator;
+    private JButton buttonAnalyseStampGenerator;
+
     private DuplicateFilesToRemovePanel duplicateFilesToRemovePanel;
     private List<MarkToDeleteFileListener> markToDeleteFileListeners = new ArrayList<>();
 
-    public AnalysePanel() throws Exception {
-        setLayout(new BorderLayout());
-        duplicateFilesToRemovePanel = new DuplicateFilesToRemovePanel();
-        addMarkToDeleteFileListener(duplicateFilesToRemovePanel);
+    public AnalysePanel(DuplicateFilesToRemovePanel duplicateFilesToRemovePanel) throws Exception {
+        this.duplicateFilesToRemovePanel = duplicateFilesToRemovePanel /*TODO сделать через хранилище*/;
         init();
     }
 
@@ -47,9 +52,26 @@ public class AnalysePanel extends JPanel {
     }
 
     private void init() throws Exception {
-        DuplicateFilesAnalyserService analyseMd5DuplicateFilesXml = new DuplicateFilesAnalyserService();
+        setLayout(new BorderLayout());
+        setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createEmptyBorder(5, 5, 5, 5),
+                BorderFactory.createTitledBorder("Анализ отпечатков")
+        ));
+        textFieldFileStampGenerator = new JTextField("D:/duplicate-files-md5.xml");
+        buttonBrowseFileStampGenerator = new JButton("...");
+        buttonAnalyseStampGenerator = new JButton("Анализировать");
+
+        JPanel panelBrowse = new JPanel(new BorderLayout());
+        panelBrowse.add(textFieldFileStampGenerator, BorderLayout.CENTER);
+        JPanel panelBrowseButtons = new JPanel(new BorderLayout());
+        panelBrowseButtons.add(buttonBrowseFileStampGenerator, BorderLayout.WEST);
+        panelBrowseButtons.add(buttonAnalyseStampGenerator, BorderLayout.CENTER);
+        panelBrowse.add(panelBrowseButtons, BorderLayout.EAST);
+
+
+        DuplicateFilesAnalyserService duplicateFilesAnalyserService = new DuplicateFilesAnalyserService();
 //        Map<String, List<String>> map = analyseMd5DuplicateFilesXml.findDuplicate(new File("D:/duplicate-files-terabyte-md5.xml"));
-        Map<String, java.util.List<String>> map = analyseMd5DuplicateFilesXml.findDuplicate(new File("D:/duplicate-files-md5.xml"));
+        Map<String, java.util.List<String>> map = duplicateFilesAnalyserService.findDuplicate(new File("D:/duplicate-files-md5.xml"));
         java.util.List<Map.Entry<String, java.util.List<String>>> entries = new ArrayList<>();
 
         for (Map.Entry<String, java.util.List<String>> entry : map.entrySet()) {
@@ -65,65 +87,36 @@ public class AnalysePanel extends JPanel {
         int pages = (int) Math.ceil(entries.size() / 10D);
 
         JPanel panelPaginator = new JPanel();
-        java.util.List<JLabel> lastSelected = new ArrayList<>();
-        for (int i = 1; i <= pages; i++) {
-            JLabel label = new JLabel(i + "");
-            if (i == 1) {
-                label.setForeground(Color.RED);
-                lastSelected.add(label);
+        JSpinner spinnerPage = new JSpinner(new SpinnerNumberModel(1, 1, pages, 1));
+        JLabel labelAllPages = new JLabel(pages + "");
+        panelPaginator.add(spinnerPage);
+        panelPaginator.add(labelAllPages);
+        ((JSpinner.DefaultEditor) spinnerPage.getEditor()).getTextField().addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyReleased(KeyEvent e) {
+                if (e.getKeyCode() != KeyEvent.VK_ENTER) {
+                    return;
+                }
+                int pageNumber = Integer.valueOf(spinnerPage.getModel().getValue() + "");
+                java.util.List<Map.Entry<String, java.util.List<String>>> part;
+                if (pageNumber - 1 == 0) {
+                    part = entries.subList(0, entries.size() > 10 ? 10 : entries.size());
+                } else {
+                    int pnStart = (pageNumber - 1) * 10;
+                    int pnEnd = pageNumber * 10;
+                    part = entries.subList(pnStart, entries.size() > pnEnd ? pnEnd : entries.size());
+                }
+                treeTableModel[0] = createFrom(part);
+                SwingUtilities.invokeLater(() -> {
+                    treeTable.setTreeTableModel(treeTableModel[0]);
+                    initTreeTable(treeTable);
+                });
             }
-            label.setCursor(new Cursor(Cursor.HAND_CURSOR));
-            Font font = label.getFont();
-            label.setFont(new Font(font.getFontName(), Font.BOLD, font.getSize()));
-            label.addMouseListener(new MouseAdapter() {
-                private Font fontOriginal;
-
-                @Override
-                public void mouseEntered(MouseEvent e) {
-                    fontOriginal = label.getFont();
-                    SwingUtilities.invokeLater(() -> {
-                        label.setFont(new Font(font.getFontName(), Font.BOLD, font.getSize() + 3));
-                        label.setBorder(BorderFactory.createLineBorder(Color.RED));
-                    });
-                }
-
-                @Override
-                public void mouseExited(MouseEvent e) {
-                    SwingUtilities.invokeLater(() -> {
-                        label.setFont(fontOriginal);
-                        label.setBorder(null);
-                    });
-                }
-            });
-            label.addMouseListener(new MouseAdapter() {
-                @Override
-                public void mouseReleased(MouseEvent e) {
-                    int pageNumber = Integer.valueOf(label.getText());
-                    java.util.List<Map.Entry<String, java.util.List<String>>> part;
-                    if (pageNumber - 1 == 0) {
-                        part = entries.subList(0, entries.size() > 10 ? 10 : entries.size());
-                    } else {
-                        int pnStart = (pageNumber - 1) * 10;
-                        int pnEnd = pageNumber * 10;
-                        part = entries.subList(pnStart, entries.size() > pnEnd ? pnEnd : entries.size());
-                    }
-                    treeTableModel[0] = createFrom(part);
-                    SwingUtilities.invokeLater(() -> {
-                        if (!lastSelected.isEmpty()) {
-                            lastSelected.get(0).setForeground(label.getForeground());
-                            label.setForeground(Color.RED);
-                            lastSelected.add(0, label);
-                        }
-                        treeTable.setTreeTableModel(treeTableModel[0]);
-                        initTreeTable(treeTable);
-                    });
-                }
-            });
-            panelPaginator.add(label);
-        }
+        });
         treeTable.setTreeCellRenderer(new DefaultXTreeCellRenderer() {
             @Override
-            public Component getTreeCellRendererComponent(JTree tree, Object value, boolean sel, boolean expanded, boolean leaf, int row, boolean hasFocus) {
+            public Component getTreeCellRendererComponent(JTree tree, Object value, boolean sel, boolean expanded,
+                                                          boolean leaf, int row, boolean hasFocus) {
                 JLabel label = (JLabel) super.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, row, hasFocus);
                 DefaultMutableTreeTableNode dftn = (DefaultMutableTreeTableNode) value;
                 if (dftn.getUserObject() instanceof DuplicateFile) {
@@ -138,52 +131,52 @@ public class AnalysePanel extends JPanel {
 
 
         });
-        treeTable.addMouseListener(new MouseAdapter() {
-            @Override
-            public void mouseReleased(MouseEvent e) {
-                int column = treeTable.columnAtPoint(e.getPoint());
-                int row = treeTable.getSelectedRow();
-                int columnModel = treeTable.convertColumnIndexToModel(column);
-                if (columnModel == 2) {
-                    Object value = treeTable.getValueAt(row, 0);
-                    if (value instanceof DuplicateFile) {
-                        DuplicateFile duplicateFile = (DuplicateFile) value;
-                        try {
-                            Desktop.getDesktop().open(new File(duplicateFile.getPath()));
-                        } catch (IOException e1) {
-                            e1.printStackTrace();
-                        }
-                    }
-                } else if (columnModel == 3) {
-                    Object value = treeTable.getValueAt(row, 0);
-                    if (value instanceof DuplicateFile) {
-                        DuplicateFile duplicateFile = (DuplicateFile) value;
-                        if (duplicateFile.isMarkDeleted()) {
-                            SwingUtilities.invokeLater(() -> {
-                                actionRemoveMark(duplicateFile.getPath());
-                                treeTable.repaint();
-                            });
-                            duplicateFile.setMarkDeleted(false);
-                        } else {
-                            SwingUtilities.invokeLater(() -> {
-                                actionMark(duplicateFile.getPath());
-                                treeTable.repaint();
-                                duplicateFile.setMarkDeleted(true);
-                            });
-                        }
-                    }
-                }
-            }
-        });
+        treeTable.addMouseListener(new
+
+                                           MouseAdapter() {
+                                               @Override
+                                               public void mouseReleased(MouseEvent e) {
+                                                   int column = treeTable.columnAtPoint(e.getPoint());
+                                                   int row = treeTable.getSelectedRow();
+                                                   int columnModel = treeTable.convertColumnIndexToModel(column);
+                                                   if (columnModel == 2) {
+                                                       Object value = treeTable.getValueAt(row, 0);
+                                                       if (value instanceof DuplicateFile) {
+                                                           DuplicateFile duplicateFile = (DuplicateFile) value;
+                                                           try {
+                                                               Desktop.getDesktop().open(new File(duplicateFile.getPath()));
+                                                           } catch (IOException e1) {
+                                                               e1.printStackTrace();
+                                                           }
+                                                       }
+                                                   } else if (columnModel == 3) {
+                                                       Object value = treeTable.getValueAt(row, 0);
+                                                       if (value instanceof DuplicateFile) {
+                                                           DuplicateFile duplicateFile = (DuplicateFile) value;
+                                                           if (duplicateFile.isMarkDeleted()) {
+                                                               SwingUtilities.invokeLater(() -> {
+                                                                   actionRemoveMark(duplicateFile.getPath());
+                                                                   treeTable.repaint();
+                                                               });
+                                                               duplicateFile.setMarkDeleted(false);
+                                                           } else {
+                                                               SwingUtilities.invokeLater(() -> {
+                                                                   actionMark(duplicateFile.getPath());
+                                                                   treeTable.repaint();
+                                                                   duplicateFile.setMarkDeleted(true);
+                                                               });
+                                                           }
+                                                       }
+                                                   }
+                                               }
+                                           });
 
         initTreeTable(treeTable);
 
-        JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
-        splitPane.setLeftComponent(new JScrollPane(treeTable));
-        splitPane.setRightComponent(duplicateFilesToRemovePanel);
-        splitPane.setDividerLocation(0.5);
-        splitPane.setResizeWeight(0.7);
-        add(splitPane, BorderLayout.CENTER);
+        add(panelBrowse, BorderLayout.NORTH);
+
+        add(new JScrollPane(treeTable), BorderLayout.CENTER);
+
         add(panelPaginator, BorderLayout.SOUTH);
     }
 
