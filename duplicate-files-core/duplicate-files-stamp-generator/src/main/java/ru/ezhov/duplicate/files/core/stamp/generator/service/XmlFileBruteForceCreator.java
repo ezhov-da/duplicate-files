@@ -36,19 +36,23 @@ public class XmlFileBruteForceCreator {
             xmlStreamWriter.writeAttribute("engine", "stamp-generator");
             xmlStreamWriter.writeAttribute("version", "0.1");
             xmlStreamWriter.writeStartElement("files");
-            fileBruteForceService.bruteForceStart(fileStamp -> {
-                try {
-                    if (fileListener != null) {
-                        fileListener.stampOn(fileStamp.getFile().getAbsolutePath());
+            try {
+                fileBruteForceService.bruteForceStart(fileStamp -> {
+                    try {
+                        if (fileListener != null) {
+                            fileListener.stampOn(fileStamp.getFile().getAbsolutePath());
+                        }
+                        xmlStreamWriter.writeStartElement("file");
+                        xmlStreamWriter.writeAttribute("stamp", fileStamp.getStamp());
+                        xmlStreamWriter.writeCharacters(fileStamp.getFile().getAbsolutePath());
+                        xmlStreamWriter.writeEndElement();
+                    } catch (XMLStreamException e) {
+                        e.printStackTrace();
                     }
-                    xmlStreamWriter.writeStartElement("file");
-                    xmlStreamWriter.writeAttribute("stamp", fileStamp.getStamp());
-                    xmlStreamWriter.writeCharacters(fileStamp.getFile().getAbsolutePath());
-                    xmlStreamWriter.writeEndElement();
-                } catch (XMLStreamException e) {
-                    e.printStackTrace();
-                }
-            });
+                });
+            } catch (Exception e) {
+                LOG.log(Level.WARNING, "Ошибка при создании отпечатка файла", e);
+            }
             xmlStreamWriter.writeEndElement();
             xmlStreamWriter.writeEndElement();
             xmlStreamWriter.writeEndDocument();

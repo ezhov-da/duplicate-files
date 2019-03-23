@@ -1,19 +1,18 @@
 package ru.ezhov.duplicate.files.gui.stamp;
 
-import ru.ezhov.duplicate.files.core.stamp.generator.service.FileListener;
 import ru.ezhov.duplicate.files.core.stamp.generator.service.XmlFileBruteForceCreator;
 
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.io.File;
 import java.util.List;
 
 public class StampPanel extends JPanel {
 
-    private JTextField rootPathForStampGenerator;
-    private JButton buttonBrowseFile;
+    private JTextField textFieldRootPathFileStampGenerator;
+    private JTextField textFieldReportStampGenerator;
+    private JButton buttonBrowseFileRootPathFile;
+    private JButton buttonBrowseReportStampGenerator;
     private JButton buttonStartStampGenerator;
     private JButton buttonStopStampGenerator;
     private JLabel labelStampGeneratorInfo;
@@ -25,21 +24,40 @@ public class StampPanel extends JPanel {
     }
 
     private void init() {
-        rootPathForStampGenerator = new JTextField();
-        buttonBrowseFile = new JButton("...");
-        buttonStartStampGenerator = new JButton("Запустить отпечаток файлов");
-        buttonStopStampGenerator = new JButton("Остановить отпечаток файлов");
-        labelStampGeneratorInfo = new JLabel();
+        setBorder(BorderFactory.createCompoundBorder(
+                BorderFactory.createEmptyBorder(5, 5, 5, 5),
+                BorderFactory.createTitledBorder("Создание отпечатков для файлов")
+        ));
+
+        textFieldRootPathFileStampGenerator = new JTextField();
+        buttonBrowseReportStampGenerator = new JButton("...");
+        JPanel panelBrowseRootPathFile = new JPanel(new BorderLayout());
+        panelBrowseRootPathFile.add(textFieldRootPathFileStampGenerator, BorderLayout.CENTER);
+        panelBrowseRootPathFile.add(buttonBrowseReportStampGenerator, BorderLayout.EAST);
+
+        textFieldReportStampGenerator = new JTextField();
+        buttonBrowseFileRootPathFile = new JButton("...");
+        JPanel panelBrowseReportFile = new JPanel(new BorderLayout());
+        panelBrowseReportFile.add(textFieldReportStampGenerator, BorderLayout.CENTER);
+        panelBrowseReportFile.add(buttonBrowseFileRootPathFile, BorderLayout.EAST);
+
+
+        buttonStartStampGenerator = new JButton("Запустить создание отпечатков файлов");
+        buttonStopStampGenerator = new JButton("Остановить создание отпечатков файлов");
+        buttonStopStampGenerator.setEnabled(false);
+        JPanel panelStamps = new JPanel(new BorderLayout());
+        panelStamps.add(buttonStartStampGenerator, BorderLayout.CENTER);
+        panelStamps.add(buttonStopStampGenerator, BorderLayout.SOUTH);
+
+        JPanel panelBrowse = new JPanel(new BorderLayout());
+        panelBrowse.add(panelBrowseRootPathFile, BorderLayout.CENTER);
+        panelBrowse.add(panelBrowseReportFile, BorderLayout.SOUTH);
 
         JPanel panelTop = new JPanel(new BorderLayout());
-        panelTop.add(rootPathForStampGenerator, BorderLayout.CENTER);
-        JPanel panelTopEast = new JPanel();
-        panelTopEast.setLayout(new BoxLayout(panelTopEast, BoxLayout.LINE_AXIS));
-        panelTopEast.add(buttonBrowseFile);
-        panelTopEast.add(buttonStartStampGenerator);
-        panelTopEast.add(buttonStopStampGenerator);
-        panelTop.add(panelTopEast, BorderLayout.EAST);
+        panelTop.add(panelBrowse, BorderLayout.CENTER);
+        panelTop.add(panelStamps, BorderLayout.EAST);
 
+        labelStampGeneratorInfo = new JLabel("Укажите корневую директорию для создания отпечатков файлов и путь для файла отпечатков");
         JPanel panelBottom = new JPanel(new BorderLayout());
         panelBottom.add(labelStampGeneratorInfo, BorderLayout.CENTER);
 
@@ -50,24 +68,31 @@ public class StampPanel extends JPanel {
     private StampWorker currentStampWorker;
 
     private void addListeners() {
-        buttonBrowseFile.addActionListener(e -> {
+        buttonBrowseReportStampGenerator.addActionListener(e -> {
             JFileChooser fileChooser = new JFileChooser();
             fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
             int action = fileChooser.showOpenDialog(StampPanel.this);
             if (action == JFileChooser.APPROVE_OPTION) {
                 SwingUtilities.invokeLater(() ->
-                        rootPathForStampGenerator.setText(fileChooser.getSelectedFile().getAbsolutePath()));
+                        textFieldRootPathFileStampGenerator.setText(fileChooser.getSelectedFile().getAbsolutePath()));
             }
         });
 
         buttonStartStampGenerator.addActionListener(e -> {
-            currentStampWorker = new StampWorker(new File(StampPanel.this.rootPathForStampGenerator.getText()));
+            currentStampWorker = new StampWorker(
+                    new File(StampPanel.this.textFieldRootPathFileStampGenerator.getText()),
+                    new File(StampPanel.this.textFieldReportStampGenerator.getText())
+            );
+            buttonStartStampGenerator.setEnabled(false);
+            buttonStopStampGenerator.setEnabled(true);
             currentStampWorker.execute();
         });
 
         buttonStopStampGenerator.addActionListener(e -> {
             if (currentStampWorker != null) {
                 currentStampWorker.cancel(true);
+                buttonStartStampGenerator.setEnabled(true);
+                buttonStopStampGenerator.setEnabled(false);
             }
         });
     }
@@ -75,11 +100,13 @@ public class StampPanel extends JPanel {
     private class StampWorker extends SwingWorker<String, String> {
 
         private File root;
+        private File report;
         private XmlFileBruteForceCreator xmlFileBruteForceCreator;
 
-        public StampWorker(File root) {
+        public StampWorker(File root, File report) {
             this.root = root;
-            xmlFileBruteForceCreator = new XmlFileBruteForceCreator(root, new File("D:/1.xml"));
+            this.report = report;
+            xmlFileBruteForceCreator = new XmlFileBruteForceCreator(root, report);
         }
 
         @Override
@@ -95,7 +122,7 @@ public class StampPanel extends JPanel {
                 }
                 StampWorker.this.publish(absoluteFilePath);
             });
-            StampWorker.this.publish("Отпечатки файлов сохранены по пути: " + rootPathForStampGenerator.getText());
+            StampWorker.this.publish("Отпечатки файлов сохранены по пути: " + textFieldReportStampGenerator.getText());
             return null;
         }
     }

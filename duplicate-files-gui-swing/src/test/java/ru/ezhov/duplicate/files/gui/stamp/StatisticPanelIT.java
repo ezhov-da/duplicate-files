@@ -14,7 +14,7 @@ public class StatisticPanelIT {
                 //
             }
             JFrame frame = new JFrame("_________");
-            frame.setSize(1000, 100);
+            frame.setSize(1000, 200);
             frame.add(new StampPanel(), BorderLayout.CENTER);
             frame.setLocationRelativeTo(null);
             frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
