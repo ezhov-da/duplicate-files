@@ -3,6 +3,7 @@ package ru.ezhov.duplicate.files.gui.stamp;
 import ru.ezhov.duplicate.files.core.stamp.generator.service.XmlFileBruteForceCreator;
 
 import javax.swing.*;
+import javax.swing.filechooser.FileFilter;
 import java.awt.*;
 import java.io.File;
 import java.util.List;
@@ -31,16 +32,16 @@ public class StampPanel extends JPanel {
         ));
 
         textFieldRootPathFileStampGenerator = new JTextField("D:\\изображения\\жена-mi-20190317");
-        buttonBrowseReportStampGenerator = new JButton("...");
+        buttonBrowseFileRootPathFile = new JButton("...");
         JPanel panelBrowseRootPathFile = new JPanel(new BorderLayout());
         panelBrowseRootPathFile.add(textFieldRootPathFileStampGenerator, BorderLayout.CENTER);
-        panelBrowseRootPathFile.add(buttonBrowseReportStampGenerator, BorderLayout.EAST);
+        panelBrowseRootPathFile.add(buttonBrowseFileRootPathFile, BorderLayout.EAST);
 
-        textFieldReportStampGenerator = new JTextField("D:\\1.xml");
-        buttonBrowseFileRootPathFile = new JButton("...");
+        textFieldReportStampGenerator = new JTextField();
+        buttonBrowseReportStampGenerator = new JButton("...");
         JPanel panelBrowseReportFile = new JPanel(new BorderLayout());
         panelBrowseReportFile.add(textFieldReportStampGenerator, BorderLayout.CENTER);
-        panelBrowseReportFile.add(buttonBrowseFileRootPathFile, BorderLayout.EAST);
+        panelBrowseReportFile.add(buttonBrowseReportStampGenerator, BorderLayout.EAST);
 
 
         buttonStartStampGenerator = new JButton("Запустить создание отпечатков файлов");
@@ -69,13 +70,39 @@ public class StampPanel extends JPanel {
     private StampWorker currentStampWorker;
 
     private void addListeners() {
-        buttonBrowseReportStampGenerator.addActionListener(e -> {
+        buttonBrowseFileRootPathFile.addActionListener(e -> {
             JFileChooser fileChooser = new JFileChooser();
-            fileChooser.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+            fileChooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
             int action = fileChooser.showOpenDialog(StampPanel.this);
             if (action == JFileChooser.APPROVE_OPTION) {
                 SwingUtilities.invokeLater(() ->
                         textFieldRootPathFileStampGenerator.setText(fileChooser.getSelectedFile().getAbsolutePath()));
+            }
+        });
+
+        buttonBrowseReportStampGenerator.addActionListener(e -> {
+            JFileChooser fileChooser = new JFileChooser();
+            fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
+            fileChooser.setFileFilter(new FileFilter() {
+                @Override
+                public boolean accept(File f) {
+                    return f.isDirectory() || f.getAbsolutePath().endsWith(".xml.dblfs");
+                }
+
+                @Override
+                public String getDescription() {
+                    return ".xml.dblfs";
+                }
+            });
+            int action = fileChooser.showSaveDialog(StampPanel.this);
+            if (action == JFileChooser.APPROVE_OPTION) {
+                String fileAbsolutePath = fileChooser.getSelectedFile().getAbsolutePath();
+                if (!fileAbsolutePath.endsWith(".xml.dblfs")) {
+                    fileAbsolutePath = fileAbsolutePath + ".xml.dblfs";
+                }
+                String finalFileAbsolutePath = fileAbsolutePath;
+                SwingUtilities.invokeLater(() ->
+                        textFieldReportStampGenerator.setText(finalFileAbsolutePath));
             }
         });
 

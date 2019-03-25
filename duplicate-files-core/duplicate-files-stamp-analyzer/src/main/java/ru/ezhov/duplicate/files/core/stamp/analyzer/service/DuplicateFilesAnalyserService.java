@@ -1,4 +1,4 @@
-package ru.ezhov.duplicate.files.core.stamp.generator.service.stamp.analyzer.service;
+package ru.ezhov.duplicate.files.core.stamp.analyzer.service;
 
 import javax.xml.stream.XMLEventReader;
 import javax.xml.stream.XMLInputFactory;

@@ -1,4 +1,4 @@
-package ru.ezhov.duplicate.files.core.stamp.generator.service.stamp.analyzer.service;
+package ru.ezhov.duplicate.files.core.stamp.analyzer.service;
 
 public class DuplicateFilesAnalyserServiceException extends Exception {
     public DuplicateFilesAnalyserServiceException() {
