@@ -1,4 +1,6 @@
-package ru.ezhov.duplicate.files.core.stamp.generator.service;
+package ru.ezhov.duplicate.files.core.stamp.generator.service.stamp.service;
+
+import ru.ezhov.duplicate.files.core.stamp.generator.service.stamp.domain.FileStamp;
 
 import java.io.File;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -7,7 +9,6 @@ import java.util.logging.Logger;
 
 public class FileBruteForceService {
     private static final Logger LOG = Logger.getLogger(FileBruteForceService.class.getName());
-
     private File rootBrutForce;
     private StampGenerator stampGenerator;
     private AtomicBoolean runningBruteForce = new AtomicBoolean();

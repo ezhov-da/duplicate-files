@@ -1,4 +1,4 @@
-package ru.ezhov.duplicate.files.core.stamp.generator.service;
+package ru.ezhov.duplicate.files.core.stamp.generator.service.stamp.service;
 
 import ru.ezhov.duplicate.files.core.stamp.generator.service.stamp.generator.Md5StampGenerator;
 

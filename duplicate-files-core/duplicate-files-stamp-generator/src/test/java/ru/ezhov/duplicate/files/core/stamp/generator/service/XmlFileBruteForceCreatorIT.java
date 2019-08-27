@@ -1,6 +1,7 @@
 package ru.ezhov.duplicate.files.core.stamp.generator.service;
 
 import org.junit.Test;
+import ru.ezhov.duplicate.files.core.stamp.generator.service.stamp.service.XmlFileBruteForceCreator;
 
 import java.io.File;
 

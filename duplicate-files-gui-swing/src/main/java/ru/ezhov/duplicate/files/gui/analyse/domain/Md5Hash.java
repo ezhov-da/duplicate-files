@@ -1,18 +1,20 @@
 package ru.ezhov.duplicate.files.gui.analyse.domain;
 
-public class Md5Hash {
-    String hash;
+import ru.ezhov.duplicate.files.core.stamp.analyzer.domain.DuplicateId;
 
-    public Md5Hash(String hash) {
-        this.hash = hash;
+public class Md5Hash {
+    String id;
+
+    public Md5Hash(DuplicateId duplicateId) {
+        this.id = duplicateId.id();
     }
 
-    public String getHash() {
-        return hash;
+    public String id() {
+        return id;
     }
 
     @Override
     public String toString() {
-        return hash;
+        return id;
     }
 }

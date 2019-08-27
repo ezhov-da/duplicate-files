@@ -6,6 +6,8 @@ import org.jdesktop.swingx.tree.DefaultXTreeCellRenderer;
 import org.jdesktop.swingx.treetable.DefaultMutableTreeTableNode;
 import org.jdesktop.swingx.treetable.DefaultTreeTableModel;
 import org.jdesktop.swingx.treetable.TreeTableModel;
+import ru.ezhov.duplicate.files.core.stamp.analyzer.domain.DuplicateId;
+import ru.ezhov.duplicate.files.core.stamp.analyzer.domain.FilePath;
 import ru.ezhov.duplicate.files.core.stamp.analyzer.service.DuplicateFilesAnalyserService;
 import ru.ezhov.duplicate.files.core.stamp.analyzer.service.DuplicateFilesAnalyserServiceException;
 import ru.ezhov.duplicate.files.gui.analyse.domain.Md5Hash;
@@ -129,7 +131,7 @@ public class AnalysePanel extends JPanel {
             buttonAnalyseStampGenerator.addActionListener(e -> {
                 DuplicateFilesAnalyserService duplicateFilesAnalyserService = new DuplicateFilesAnalyserService();
                 try {
-                    Map<String, List<String>> map = duplicateFilesAnalyserService.findDuplicate(new File(textFieldFileStampGenerator.getText()));
+                    Map<DuplicateId, List<FilePath>> map = duplicateFilesAnalyserService.findDuplicate(new File(textFieldFileStampGenerator.getText()));
                     AnalyseResultTreeTablePanel newPanelAnalyseResult = new AnalyseResultTreeTablePanel(map);
                     if (panelMock != null) {
                         SwingUtilities.invokeLater(() -> {
@@ -172,19 +174,19 @@ public class AnalysePanel extends JPanel {
 
         private List<MarkToDeleteFileListener> markToDeleteFileListeners = new ArrayList<>();
         private JPanel panelPaginator;
-        private java.util.List<Map.Entry<String, java.util.List<String>>> entries;
+        private java.util.List<Map.Entry<DuplicateId, java.util.List<FilePath>>> entries;
         private JXTreeTable treeTable;
         private TreeTableModel treeTableModel;
 
-        public AnalyseResultTreeTablePanel(Map<String, List<String>> map) {
+        public AnalyseResultTreeTablePanel(Map<DuplicateId, List<FilePath>> map) {
             setLayout(new BorderLayout());
             entries = new ArrayList<>();
-            for (Map.Entry<String, java.util.List<String>> entry : map.entrySet()) {
+            for (Map.Entry<DuplicateId, java.util.List<FilePath>> entry : map.entrySet()) {
                 if (entry.getValue().size() > 1) {
                     entries.add(entry);
                 }
             }
-            java.util.List<Map.Entry<String, java.util.List<String>>> part = entries.subList(0, entries.size() > 10 ? 10 : entries.size());
+            java.util.List<Map.Entry<DuplicateId, java.util.List<FilePath>>> part = entries.subList(0, entries.size() > 10 ? 10 : entries.size());
             treeTableModel = createFrom(part);
             treeTable = new JXTreeTable(treeTableModel);
 
@@ -274,7 +276,7 @@ public class AnalysePanel extends JPanel {
 
         private void changePage(JSpinner spinner) {
             int pageNumber = Integer.valueOf(spinner.getModel().getValue() + "");
-            java.util.List<Map.Entry<String, java.util.List<String>>> part;
+            java.util.List<Map.Entry<DuplicateId, java.util.List<FilePath>>> part;
             if (pageNumber - 1 == 0) {
                 part = entries.subList(0, entries.size() > 10 ? 10 : entries.size());
             } else {
@@ -351,11 +353,11 @@ public class AnalysePanel extends JPanel {
             treeTable.expandAll();
         }
 
-        private TreeTableModel createFrom(java.util.List<Map.Entry<String, java.util.List<String>>> entries) {
+        private TreeTableModel createFrom(java.util.List<Map.Entry<DuplicateId, java.util.List<FilePath>>> entries) {
             DefaultMutableTreeTableNode root = new DefaultMutableTreeTableNode("root");
-            for (Map.Entry<String, List<String>> entry : entries) {
+            for (Map.Entry<DuplicateId, List<FilePath>> entry : entries) {
                 DefaultMutableTreeTableNode hashNode = new DefaultMutableTreeTableNode(new Md5Hash(entry.getKey()));
-                for (String filePath : entry.getValue()) {
+                for (FilePath filePath : entry.getValue()) {
                     DuplicateFile duplicateFile = new DuplicateFile(filePath);
                     hashNode.add(new DefaultMutableTreeTableNode(duplicateFile));
                 }
@@ -512,11 +514,11 @@ public class AnalysePanel extends JPanel {
 
         private BufferedImage imageIcon;
 
-        public DuplicateFile(String path) {
-            this.path = path;
-            this.file = new File(path);
+        DuplicateFile(FilePath path) {
+            this.path = path.path();
+            this.file = new File(this.path);
             try {
-                BufferedImage originalImage = ImageIO.read(new File(path));
+                BufferedImage originalImage = ImageIO.read(new File(this.path));
                 BufferedImage thumbnail = Thumbnails.of(originalImage)
                         .size(100, 100)
                         .asBufferedImage();
@@ -526,19 +528,19 @@ public class AnalysePanel extends JPanel {
             }
         }
 
-        public BufferedImage getImageIcon() {
+        BufferedImage getImageIcon() {
             return imageIcon;
         }
 
-        public String getPath() {
+        String getPath() {
             return path;
         }
 
-        public boolean isMarkDeleted() {
+        boolean isMarkDeleted() {
             return isDeleted(path);
         }
 
-        public File getFile() {
+        File getFile() {
             return file;
         }
 

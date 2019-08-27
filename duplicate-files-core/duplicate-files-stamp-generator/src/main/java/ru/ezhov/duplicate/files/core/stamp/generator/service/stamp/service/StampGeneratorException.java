@@ -1,7 +1,7 @@
-package ru.ezhov.duplicate.files.core.stamp.generator.service;
+package ru.ezhov.duplicate.files.core.stamp.generator.service.stamp.service;
 
 public class StampGeneratorException extends Exception {
-    public StampGeneratorException() {
+    StampGeneratorException() {
     }
 
     public StampGeneratorException(String message) {

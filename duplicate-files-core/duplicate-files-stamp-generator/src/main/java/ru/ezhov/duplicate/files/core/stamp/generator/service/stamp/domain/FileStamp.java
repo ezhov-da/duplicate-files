@@ -1,4 +1,4 @@
-package ru.ezhov.duplicate.files.core.stamp.generator.service;
+package ru.ezhov.duplicate.files.core.stamp.generator.service.stamp.domain;
 
 import java.io.File;
 
