@@ -1,4 +1,4 @@
-package ru.ezhov.duplicate.files.core.stamp.generator.service.stamp.domain;
+package ru.ezhov.duplicate.files.core.stamp.generator.model.domain;
 
 import java.io.File;
 
@@ -11,11 +11,11 @@ public class FileStamp {
         this.file = file;
     }
 
-    public String getStamp() {
+    public String stamp() {
         return stamp;
     }
 
-    public File getFile() {
+    public File file() {
         return file;
     }
 }

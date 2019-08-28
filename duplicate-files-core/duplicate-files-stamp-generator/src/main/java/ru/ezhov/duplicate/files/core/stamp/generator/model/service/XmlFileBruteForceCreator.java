@@ -1,6 +1,6 @@
-package ru.ezhov.duplicate.files.core.stamp.generator.service.stamp.service;
+package ru.ezhov.duplicate.files.core.stamp.generator.model.service;
 
-import ru.ezhov.duplicate.files.core.stamp.generator.service.stamp.generator.Md5StampGenerator;
+import ru.ezhov.duplicate.files.core.stamp.generator.infrastructure.generator.Md5StampGenerator;
 
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
@@ -40,11 +40,11 @@ public class XmlFileBruteForceCreator {
                 fileBruteForceService.bruteForceStart(fileStamp -> {
                     try {
                         if (fileListener != null) {
-                            fileListener.stampOn(fileStamp.getFile().getAbsolutePath());
+                            fileListener.stampOn(fileStamp.file().getAbsolutePath());
                         }
                         xmlStreamWriter.writeStartElement("file");
-                        xmlStreamWriter.writeAttribute("stamp", fileStamp.getStamp());
-                        xmlStreamWriter.writeCharacters(fileStamp.getFile().getAbsolutePath());
+                        xmlStreamWriter.writeAttribute("stamp", fileStamp.stamp());
+                        xmlStreamWriter.writeCharacters(fileStamp.file().getAbsolutePath());
                         xmlStreamWriter.writeEndElement();
                     } catch (XMLStreamException e) {
                         e.printStackTrace();

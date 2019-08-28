@@ -1,6 +1,6 @@
 package ru.ezhov.duplicate.files.gui.stamp;
 
-import ru.ezhov.duplicate.files.core.stamp.generator.service.stamp.service.XmlFileBruteForceCreator;
+import ru.ezhov.duplicate.files.core.stamp.generator.model.service.XmlFileBruteForceCreator;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileFilter;

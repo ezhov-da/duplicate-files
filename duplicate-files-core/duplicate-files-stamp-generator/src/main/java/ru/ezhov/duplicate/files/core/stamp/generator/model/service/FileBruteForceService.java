@@ -1,6 +1,6 @@
-package ru.ezhov.duplicate.files.core.stamp.generator.service.stamp.service;
+package ru.ezhov.duplicate.files.core.stamp.generator.model.service;
 
-import ru.ezhov.duplicate.files.core.stamp.generator.service.stamp.domain.FileStamp;
+import ru.ezhov.duplicate.files.core.stamp.generator.model.domain.FileStamp;
 
 import java.io.File;
 import java.util.concurrent.atomic.AtomicBoolean;

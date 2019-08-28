@@ -1,7 +1,7 @@
-package ru.ezhov.duplicate.files.core.stamp.generator.service.stamp.generator;
+package ru.ezhov.duplicate.files.core.stamp.generator.infrastructure.generator;
 
-import ru.ezhov.duplicate.files.core.stamp.generator.service.stamp.service.StampGenerator;
-import ru.ezhov.duplicate.files.core.stamp.generator.service.stamp.service.StampGeneratorException;
+import ru.ezhov.duplicate.files.core.stamp.generator.model.service.StampGenerator;
+import ru.ezhov.duplicate.files.core.stamp.generator.model.service.StampGeneratorException;
 
 import javax.xml.bind.DatatypeConverter;
 import java.io.File;
