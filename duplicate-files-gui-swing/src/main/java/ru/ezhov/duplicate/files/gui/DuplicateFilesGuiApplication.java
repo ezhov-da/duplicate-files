@@ -1,7 +1,10 @@
 package ru.ezhov.duplicate.files.gui;
 
-import ru.ezhov.duplicate.files.gui.analyse.AnalysePanel;
-import ru.ezhov.duplicate.files.gui.stamp.StampPanel;
+import ru.ezhov.duplicate.files.gui.application.analyse.AnalysePanel;
+import ru.ezhov.duplicate.files.gui.application.delete.DeleteDuplicateFilesQueuePanel;
+import ru.ezhov.duplicate.files.gui.application.repository.ThumbnailsRepository;
+import ru.ezhov.duplicate.files.gui.application.stamp.StampPanel;
+import ru.ezhov.duplicate.files.gui.infrastructure.repository.TempDirectoryCacheThumbnailRepository;
 
 import javax.swing.*;
 import java.awt.*;
@@ -20,11 +23,27 @@ public class DuplicateFilesGuiApplication {
                 JFrame frame = new JFrame("Дубликаты");
                 frame.setIconImage(new ImageIcon(DuplicateFilesGuiApplication.class.getResource("/duplicate_16x16.png")).getImage());
 
+                ThumbnailsRepository thumbnailsRepository = new TempDirectoryCacheThumbnailRepository();
+
                 StampPanel stampPanel = new StampPanel();
-                AnalysePanel analysePanel = new AnalysePanel();
+                AnalysePanel analysePanel = new AnalysePanel(thumbnailsRepository);
+                DeleteDuplicateFilesQueuePanel deleteDuplicateFilesQueuePanel = new DeleteDuplicateFilesQueuePanel(thumbnailsRepository);
+
+                analysePanel.addMarkToDeleteListener(deleteDuplicateFilesQueuePanel);
+                analysePanel.addUnmarkToDeleteListener(deleteDuplicateFilesQueuePanel);
+
+                deleteDuplicateFilesQueuePanel.addMarkToDeleteListener(analysePanel);
+                deleteDuplicateFilesQueuePanel.addUnmarkToDeleteListener(analysePanel);
+                deleteDuplicateFilesQueuePanel.addUploadPreparedDeleteFileListener(analysePanel);
+
+                JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT);
+                splitPane.setLeftComponent(analysePanel);
+                splitPane.setRightComponent(deleteDuplicateFilesQueuePanel);
+                splitPane.setDividerLocation(0.5);
+                splitPane.setResizeWeight(0.7);
 
                 frame.add(stampPanel, BorderLayout.NORTH);
-                frame.add(analysePanel, BorderLayout.CENTER);
+                frame.add(splitPane, BorderLayout.CENTER);
                 frame.setSize(1500, 800);
                 frame.setLocationRelativeTo(null);
                 frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
