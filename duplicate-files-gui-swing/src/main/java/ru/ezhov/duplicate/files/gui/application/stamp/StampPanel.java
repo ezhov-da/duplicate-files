@@ -31,7 +31,7 @@ public class StampPanel extends JPanel {
                 BorderFactory.createTitledBorder("Создание отпечатков файлов")
         ));
 
-        textFieldRootPathFileStampGenerator = new JTextField("D:\\изображения\\жена-mi-20190317");
+        textFieldRootPathFileStampGenerator = new JTextField();
         buttonBrowseFileRootPathFile = new JButton("...");
         JPanel panelBrowseRootPathFile = new JPanel(new BorderLayout());
         panelBrowseRootPathFile.add(textFieldRootPathFileStampGenerator, BorderLayout.CENTER);
