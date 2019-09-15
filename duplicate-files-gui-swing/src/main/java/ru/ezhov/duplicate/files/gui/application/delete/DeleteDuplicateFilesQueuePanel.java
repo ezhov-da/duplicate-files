@@ -9,11 +9,17 @@ import ru.ezhov.duplicate.files.stamp.analyzer.model.domain.FilePath;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
+import java.io.File;
 import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class DeleteDuplicateFilesQueuePanel extends JPanel implements UnmarkToDeleteListener, MarkToDeleteListener, UploadPreparedDeleteFileListener {
-
+    private static final Logger LOG = Logger.getLogger(DeleteDuplicateFilesQueuePanel.class.getName());
     private java.util.List<UnmarkToDeleteListener> unmarkToDeleteListeners = new ArrayList<>();
     private List<MarkToDeleteListener> markToDeleteListeners = new ArrayList<>();
     private List<UploadPreparedDeleteFileListener> uploadPreparedDeleteFileListeners = new ArrayList<>();
@@ -64,12 +70,85 @@ public class DeleteDuplicateFilesQueuePanel extends JPanel implements UnmarkToDe
 
         uploadPanel.addUploadPreparedDeleteFileListener(this);
 
-        panel.add(savePanel, BorderLayout.NORTH);
-        panel.add(uploadPanel, BorderLayout.NORTH);
+        JButton buttonClear = new JButton("Очистить список");
+        buttonClear.addActionListener(e -> {
+            clearModel();
+        });
+
+        panel.add(savePanel);
+        panel.add(uploadPanel);
+        panel.add(buttonClear);
         add(panel, BorderLayout.NORTH);
+
         add(new JScrollPane(listDuplicateFilesToRemove), BorderLayout.CENTER);
 
+        JPanel panelBottom = new JPanel();
+        BoxLayout boxLayoutBottom = new BoxLayout(panelBottom, BoxLayout.Y_AXIS);
+        panelBottom.setLayout(boxLayoutBottom);
 
+        JButton buttonDelete = new JButton("Удалить подготовленные файлы");
+
+        buttonDelete.addActionListener(e -> {
+            deleteAll();
+        });
+
+        panelBottom.add(buttonDelete);
+        add(panelBottom, BorderLayout.SOUTH);
+    }
+
+    private void deleteAll() {
+        AtomicBoolean atomicBooleanCancel = new AtomicBoolean(false);
+
+        DeleteProccesDialog deleteProccesDialog = new DeleteProccesDialog();
+        Runnable runnable = () -> {
+            List<PreparedToDelete> preparedToDeletes = new ArrayList<>();
+            for (int i = 0; i < listModel.size(); i++) {
+                PreparedToDelete preparedToDelete = listModel.get(i);
+                preparedToDeletes.add(preparedToDelete);
+            }
+
+            SwingWorker<String, DeleteProcces> swingWorker = new SwingWorker<String, DeleteProcces>() {
+                @Override
+                protected String doInBackground() throws Exception {
+                    for (int i = 0; i < preparedToDeletes.size(); i++) {
+                        if (atomicBooleanCancel.get()) {
+                            break;
+                        }
+                        PreparedToDelete preparedToDelete = preparedToDeletes.get(i);
+                        File file = preparedToDelete.getFile();
+                        if (file.exists()) {
+                            Thread.sleep(250);
+                            boolean delete = file.delete();
+                            LOG.log(Level.CONFIG, "method=deleteAll action=\"файл ''{0}'' удален ''{1}''\"", new Object[]{file, delete});
+                            process(Collections.singletonList(new DeleteProcces(preparedToDeletes.size(), i + 1, preparedToDelete)));
+                        }
+                    }
+                    return null;
+                }
+
+                @Override
+                protected void process(List<DeleteProcces> chunks) {
+                    chunks.forEach(dp -> {
+                        String text = String.format("%s из %s: %s", dp.number, dp.allCount, dp.preparedToDelete.getFilePath().path());
+                        deleteProccesDialog.publishInfo(text);
+                    });
+                }
+
+                @Override
+                protected void done() {
+                    listDuplicateFilesToRemove.repaint();
+                    deleteProccesDialog.setVisible(false);
+                    deleteProccesDialog.dispose();
+                }
+            };
+
+            swingWorker.execute();
+        };
+
+        deleteProccesDialog.cancel(() -> {
+            atomicBooleanCancel.set(true);
+        });
+        deleteProccesDialog.showWith(runnable);
     }
 
 
@@ -103,6 +182,21 @@ public class DeleteDuplicateFilesQueuePanel extends JPanel implements UnmarkToDe
         }
     }
 
+    private void clearModel() {
+        List<PreparedToDelete> preparedToDeletes = new ArrayList<>();
+        for (int i = 0; i < listModel.size(); i++) {
+            PreparedToDelete preparedToDelete = listModel.get(i);
+            preparedToDeletes.add(preparedToDelete);
+        }
+
+        SwingUtilities.invokeLater(() -> {
+            preparedToDeletes.forEach(pd -> {
+                listModel.removeElement(pd);
+                fireUnmarkToDelete(pd.getFilePath());
+            });
+        });
+    }
+
     @Override
     public void mark(FilePath filePath) {
         SwingUtilities.invokeLater(() -> {
@@ -133,5 +227,29 @@ public class DeleteDuplicateFilesQueuePanel extends JPanel implements UnmarkToDe
             }
         });
         fireUploadPreparedDeleteFileListener(filePaths);
+    }
+
+    private class DeleteProcces {
+        private int allCount;
+        private int number;
+        private PreparedToDelete preparedToDelete;
+
+        public DeleteProcces(int allCount, int number, PreparedToDelete preparedToDelete) {
+            this.allCount = allCount;
+            this.number = number;
+            this.preparedToDelete = preparedToDelete;
+        }
+
+        public int getAllCount() {
+            return allCount;
+        }
+
+        public int getNumber() {
+            return number;
+        }
+
+        public PreparedToDelete getPreparedToDelete() {
+            return preparedToDelete;
+        }
     }
 }

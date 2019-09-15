@@ -3,7 +3,6 @@ package ru.ezhov.duplicate.files.gui.infrastructure.repository;
 import net.coobird.thumbnailator.Thumbnails;
 import ru.ezhov.duplicate.files.gui.application.repository.ThumbnailsRepository;
 import ru.ezhov.duplicate.files.stamp.analyzer.model.domain.FilePath;
-import ru.ezhov.duplicate.files.stamp.generator.model.service.StampGeneratorException;
 
 import javax.imageio.ImageIO;
 import javax.xml.bind.DatatypeConverter;
@@ -24,11 +23,14 @@ public class TempDirectoryCacheThumbnailRepository implements ThumbnailsReposito
     private static final Logger LOG = Logger.getLogger(TempDirectoryCacheThumbnailRepository.class.getName());
     private static final String PATH_TO_STORE = System.getProperty("java.io.tmpdir") + File.separator + ".duplicate-thumbnail-store";
     private static final String PATH_TO_DEFAULT_IMAGE = "/default-image-150x150.jpg";
+    private static final String PATH_TO_NOT_FOUND_IMAGE = "/not-found-image.png";
     private Map<String, BufferedImage> cacheStore = new HashMap<>();
     private Map<String, String> cacheStamps = new HashMap<>();
     private Set<String> errors = new HashSet<>();
+    private Set<String> notFound = new HashSet<>();
 
     private BufferedImage defaultImage = null;
+    private BufferedImage notFoundImage = null;
 
     public TempDirectoryCacheThumbnailRepository() {
         init();
@@ -46,62 +48,61 @@ public class TempDirectoryCacheThumbnailRepository implements ThumbnailsReposito
     public synchronized BufferedImage by(FilePath filePath) {
         BufferedImage bufferedImage = null;
         String path = filePath.path();
-        if (errors.contains(path)) {
-            LOG.log(Level.CONFIG, "method=by action=\"ошибки для файла ''{0}''\"", path);
+        if (notFound.contains(path)) {
+            LOG.log(Level.CONFIG, "method=by action=\"файл ''{0}'' не найден\"", path);
             try {
-                bufferedImage = defaultImage();
+                bufferedImage = notFoundImage();
             } catch (IOException e) {
                 e.printStackTrace();
             }
         } else {
-            try {
-                File fileCheckOriginalExist = new File(path);
-                if (!fileCheckOriginalExist.exists()) {
-                    LOG.log(Level.CONFIG, "method=by action=\"ошибка создания миниатюры для ''{0}''\"", path);
-                    errors.add(path);
+            if (errors.contains(path)) {
+                LOG.log(Level.CONFIG, "method=by action=\"ошибки для файла ''{0}''\"", path);
+                try {
                     bufferedImage = defaultImage();
-                } else {
-
-                    if (cacheStore.containsKey(path)) {
-                        LOG.log(Level.CONFIG, "method=by action=\"изображение для ''{0}'' взято из кеша\"", path);
-                        bufferedImage = cacheStore.get(path);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            } else {
+                try {
+                    File fileCheckOriginalExist = new File(path);
+                    if (!fileCheckOriginalExist.exists()) {
+                        LOG.log(Level.CONFIG, "method=by action=\"ошибка создания миниатюры для ''{0}''\"", path);
+                        notFound.add(path);
+                        bufferedImage = notFoundImage();
                     } else {
-
-                        String md5StampPath;
-                        if (cacheStamps.containsKey(path)) {
-                            LOG.log(Level.CONFIG, "method=by action=\"отпечаток для пути ''{0}'' взят из кеша\"", path);
-                            md5StampPath = cacheStamps.get(path);
+                        if (cacheStore.containsKey(path)) {
+                            LOG.log(Level.CONFIG, "method=by action=\"изображение для ''{0}'' взято из кеша\"", path);
+                            bufferedImage = cacheStore.get(path);
                         } else {
-                            md5StampPath = stamp(filePath);
-                            LOG.log(Level.CONFIG, "method=by action=\"отпечаток ''{1}'' для пути ''{0}'' создан\"", new Object[]{path, md5StampPath});
-                            cacheStamps.put(path, md5StampPath);
-                        }
-                        File stampFile = getStampTempFile(md5StampPath);
-                        if (stampFile.exists()) {
-                            LOG.log(Level.CONFIG, "method=by action=\"файл отпечатка существует ''{0}''\"", stampFile);
-                            bufferedImage = from(stampFile);
-                        } else {
-                            File file = new File(path);
-                            if (file.exists()) {
-                                BufferedImage bufferedImageOriginal = from(file);
+                            String md5StampPath;
+                            if (cacheStamps.containsKey(path)) {
+                                LOG.log(Level.CONFIG, "method=by action=\"отпечаток для пути ''{0}'' взят из кеша\"", path);
+                                md5StampPath = cacheStamps.get(path);
+                            } else {
+                                md5StampPath = stamp(filePath);
+                                LOG.log(Level.CONFIG, "method=by action=\"отпечаток ''{1}'' для пути ''{0}'' создан\"", new Object[]{path, md5StampPath});
+                                cacheStamps.put(path, md5StampPath);
+                            }
+                            File stampFile = getStampTempFile(md5StampPath);
+                            if (stampFile.exists()) {
+                                LOG.log(Level.CONFIG, "method=by action=\"файл отпечатка существует ''{0}''\"", stampFile);
+                                bufferedImage = from(stampFile);
+                            } else {
+                                BufferedImage bufferedImageOriginal = from(fileCheckOriginalExist);
                                 bufferedImage = thumbnail(bufferedImageOriginal);
                                 ImageIO.write(bufferedImage, "jpg", stampFile);
                                 LOG.log(Level.CONFIG, "method=by action=\"файл отпечатка ''{1}'' создан для ''{0}''\"", new Object[]{path, stampFile});
                                 cacheStore.put(path, bufferedImage);
-                            } else {
-                                LOG.log(Level.CONFIG, "method=by action=\"ошибка создания миниатюры для ''{0}''\"", path);
-                                errors.add(path);
-                                bufferedImage = defaultImage();
                             }
                         }
-
                     }
-                }
-            } catch (Exception e) {
-                try {
-                    bufferedImage = defaultImage();
-                } catch (IOException e1) {
-                    //пофигу, что не смогли уменьшить
+                } catch (Exception e) {
+                    try {
+                        bufferedImage = defaultImage();
+                    } catch (IOException e1) {
+                        //пофигу, что не смогли уменьшить
+                    }
                 }
             }
         }
@@ -115,6 +116,15 @@ public class TempDirectoryCacheThumbnailRepository implements ThumbnailsReposito
         }
 
         return defaultImage;
+    }
+
+    private BufferedImage notFoundImage() throws IOException {
+        if (notFoundImage == null) {
+            notFoundImage = thumbnail(from(PATH_TO_NOT_FOUND_IMAGE));
+            return notFoundImage;
+        }
+
+        return notFoundImage;
     }
 
     private BufferedImage from(File file) throws IOException {

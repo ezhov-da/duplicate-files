@@ -30,7 +30,7 @@ public class DuplicateFile {
         this.markDeleted = true;
     }
 
-    public void unarkDeleted() {
+    public void unmarkDeleted() {
         this.markDeleted = false;
     }
 

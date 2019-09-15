@@ -15,8 +15,6 @@ import ru.ezhov.duplicate.files.stamp.analyzer.model.domain.DuplicateId;
 import ru.ezhov.duplicate.files.stamp.analyzer.model.domain.FilePath;
 
 import javax.swing.*;
-import javax.swing.event.ChangeEvent;
-import javax.swing.event.ChangeListener;
 import javax.swing.table.DefaultTableCellRenderer;
 import java.awt.*;
 import java.awt.event.KeyAdapter;
@@ -28,7 +26,7 @@ import java.util.List;
 import java.util.*;
 
 public class AnalyseResultTreeTablePanel extends JPanel implements UnmarkToDeleteListener, MarkToDeleteListener, UploadPreparedDeleteFileListener {
-
+    private static final int COUNT_DUPLICATE_FILE_ON_PAGE = 100;
     private List<UnmarkToDeleteListener> unmarkToDeleteListeners = new ArrayList<>();
     private List<MarkToDeleteListener> markToDeleteListeners = new ArrayList<>();
     private JPanel panelPaginator;
@@ -48,11 +46,19 @@ public class AnalyseResultTreeTablePanel extends JPanel implements UnmarkToDelet
                 entries.add(entry);
             }
         }
-        java.util.List<Map.Entry<DuplicateId, java.util.List<FilePath>>> part = entries.subList(0, entries.size() > 10 ? 10 : entries.size());
+
+        for (Map.Entry<DuplicateId, List<FilePath>> entry : entries) {
+            for (FilePath filePath : entry.getValue()) {
+                DuplicateFile duplicateFile = new DuplicateFile(filePath);
+                cacheDuplicateFiles.put(filePath.path(), duplicateFile);
+            }
+        }
+
+        java.util.List<Map.Entry<DuplicateId, java.util.List<FilePath>>> part = entries.subList(0, entries.size() > COUNT_DUPLICATE_FILE_ON_PAGE ? COUNT_DUPLICATE_FILE_ON_PAGE : entries.size());
         treeTableModel = createFrom(part);
         treeTable = new JXTreeTable(treeTableModel);
 
-        int pages = (int) Math.ceil(entries.size() / 10D);
+        int pages = (int) Math.ceil(entries.size() / Double.parseDouble(COUNT_DUPLICATE_FILE_ON_PAGE + ""));
 
         panelPaginator = new JPanel();
         JSpinner spinnerPage = new JSpinner(new SpinnerNumberModel(1, 1, pages, 1));
@@ -60,12 +66,7 @@ public class AnalyseResultTreeTablePanel extends JPanel implements UnmarkToDelet
         panelPaginator.add(spinnerPage);
         panelPaginator.add(labelAllPages);
 
-        spinnerPage.addChangeListener(new ChangeListener() {
-            @Override
-            public void stateChanged(ChangeEvent e) {
-                changePage(spinnerPage);
-            }
-        });
+        spinnerPage.addChangeListener(e -> changePage(spinnerPage));
 
         ((JSpinner.DefaultEditor) spinnerPage.getEditor()).getTextField().addKeyListener(new KeyAdapter() {
             @Override
@@ -119,7 +120,7 @@ public class AnalyseResultTreeTablePanel extends JPanel implements UnmarkToDelet
                             SwingUtilities.invokeLater(() -> {
                                 treeTable.repaint();
                             });
-                            duplicateFile.unarkDeleted();
+                            duplicateFile.unmarkDeleted();
                             fireUnmarkToDelete(duplicateFile.getPath());
                         } else {
                             SwingUtilities.invokeLater(() -> {
@@ -143,10 +144,10 @@ public class AnalyseResultTreeTablePanel extends JPanel implements UnmarkToDelet
         int pageNumber = Integer.parseInt(spinner.getModel().getValue() + "");
         java.util.List<Map.Entry<DuplicateId, java.util.List<FilePath>>> part;
         if (pageNumber - 1 == 0) {
-            part = entries.subList(0, entries.size() > 10 ? 10 : entries.size());
+            part = entries.subList(0, entries.size() > COUNT_DUPLICATE_FILE_ON_PAGE ? COUNT_DUPLICATE_FILE_ON_PAGE : entries.size());
         } else {
-            int pnStart = (pageNumber - 1) * 10;
-            int pnEnd = pageNumber * 10;
+            int pnStart = (pageNumber - 1) * COUNT_DUPLICATE_FILE_ON_PAGE;
+            int pnEnd = pageNumber * COUNT_DUPLICATE_FILE_ON_PAGE;
             part = entries.subList(pnStart, entries.size() > pnEnd ? pnEnd : entries.size());
         }
         treeTableModel = createFrom(part);
@@ -287,7 +288,14 @@ public class AnalyseResultTreeTablePanel extends JPanel implements UnmarkToDelet
 
     @Override
     public void unmark(FilePath filePath) {
-        //TODO: возможно не нужно
+        if (cacheDuplicateFiles.containsKey(filePath.path())) {
+            DuplicateFile duplicateFile = cacheDuplicateFiles.get(filePath.path());
+            duplicateFile.unmarkDeleted();
+        }
+
+        SwingUtilities.invokeLater(() -> {
+            treeTable.repaint();
+        });
     }
 
     @Override
@@ -332,7 +340,7 @@ public class AnalyseResultTreeTablePanel extends JPanel implements UnmarkToDelet
                 if (counter == 1) {
                     if (value instanceof DuplicateFile) {
                         DuplicateFile duplicateFile = (DuplicateFile) value;
-                        duplicateFile.unarkDeleted();
+                        duplicateFile.unmarkDeleted();
                     }
                     counter++;
                     continue;

@@ -45,6 +45,7 @@ public class AnalysePanel extends JPanel implements DuplicateAnalyseCompleteList
         panelMock = new JPanel(new BorderLayout());
         JLabel labelMock = new JLabel("Выберите файл отпечатков и запустите анализ на дубликаты");
         labelMock.setHorizontalTextPosition(SwingConstants.CENTER);
+        labelMock.setHorizontalAlignment(SwingConstants.CENTER);
         panelMock.add(labelMock, BorderLayout.CENTER);
 
         analysePanel = new JPanel(new BorderLayout());
@@ -82,7 +83,6 @@ public class AnalysePanel extends JPanel implements DuplicateAnalyseCompleteList
             analysePanel.revalidate();
             analysePanel.repaint();
         });
-
     }
 
     @Override
