@@ -15,6 +15,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.util.*;
 import java.util.List;
+import java.util.stream.Stream;
 
 public class AnalysePanel extends JPanel implements DuplicateAnalyseCompleteListener, UnmarkToDeleteListener, MarkToDeleteListener, UploadPreparedDeleteFileListener {
 
@@ -88,7 +89,16 @@ public class AnalysePanel extends JPanel implements DuplicateAnalyseCompleteList
     @Override
     public void complete(Map<DuplicateId, List<FilePath>> result) {
         SwingUtilities.invokeLater(() -> {
-            AnalysePanel.this.initAnalyseResultTreeTablePanel(result);
+            int sumSize = 0;
+            Collection<List<FilePath>> values = result.values();
+            for (List<FilePath> filePaths : values) {
+                sumSize += filePaths.size();
+            }
+            if (sumSize == result.size()) {
+                JOptionPane.showMessageDialog(AnalysePanel.this, "Дубликаты не обнаружены", "Информация", JOptionPane.INFORMATION_MESSAGE);
+            } else {
+                AnalysePanel.this.initAnalyseResultTreeTablePanel(result);
+            }
         });
     }
 
@@ -114,7 +124,7 @@ public class AnalysePanel extends JPanel implements DuplicateAnalyseCompleteList
         }
     }
 
-    private void initCacheUpload(){
+    private void initCacheUpload() {
         List<FilePath> paths = new ArrayList<>(cacheFilePaths);
         analyseResultTreeTablePanel.upload(paths);
     }

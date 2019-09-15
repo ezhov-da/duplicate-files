@@ -1,7 +1,5 @@
 package ru.ezhov.duplicate.files.gui.application.delete;
 
-import com.sun.org.apache.xerces.internal.impl.dv.xs.AbstractDateTimeDV;
-
 import javax.swing.*;
 import java.awt.*;
 
