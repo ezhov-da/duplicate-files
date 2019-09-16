@@ -4,9 +4,9 @@ import ru.ezhov.duplicate.files.stamp.generator.model.service.StampGenerator;
 import ru.ezhov.duplicate.files.stamp.generator.model.service.StampGeneratorException;
 
 import javax.xml.bind.DatatypeConverter;
+import java.io.BufferedInputStream;
 import java.io.File;
-import java.nio.file.Files;
-import java.nio.file.Paths;
+import java.io.FileInputStream;
 import java.security.MessageDigest;
 
 public class Md5StampGenerator implements StampGenerator {
@@ -14,9 +14,16 @@ public class Md5StampGenerator implements StampGenerator {
     public String generate(File file) throws StampGeneratorException {
         try {
             MessageDigest md = MessageDigest.getInstance("MD5");
-            md.update(Files.readAllBytes(Paths.get(file.getPath())));
+            try (BufferedInputStream inputStream = new BufferedInputStream(new FileInputStream(file))) {
+                byte[] bytes = new byte[1024];
+                int read;
+                while ((read = inputStream.read(bytes)) != -1) {
+                    md.update(bytes, 0, read);
+                }
+            }
             byte[] digest = md.digest();
-            return DatatypeConverter.printHexBinary(digest).toLowerCase();
+            String s = DatatypeConverter.printHexBinary(digest);
+            return s.toLowerCase();
         } catch (Exception e) {
             throw new StampGeneratorException(e);
         }

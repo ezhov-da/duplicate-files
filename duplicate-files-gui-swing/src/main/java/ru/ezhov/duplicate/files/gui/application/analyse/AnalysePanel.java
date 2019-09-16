@@ -1,6 +1,5 @@
 package ru.ezhov.duplicate.files.gui.application.analyse;
 
-import org.jdesktop.swingx.treetable.DefaultMutableTreeTableNode;
 import ru.ezhov.duplicate.files.gui.application.MarkToDeleteListener;
 import ru.ezhov.duplicate.files.gui.application.UnmarkToDeleteListener;
 import ru.ezhov.duplicate.files.gui.application.analyse.load.DuplicateAnalyseCompleteListener;
@@ -13,9 +12,8 @@ import ru.ezhov.duplicate.files.stamp.analyzer.model.domain.FilePath;
 
 import javax.swing.*;
 import java.awt.*;
-import java.util.*;
 import java.util.List;
-import java.util.stream.Stream;
+import java.util.*;
 
 public class AnalysePanel extends JPanel implements DuplicateAnalyseCompleteListener, UnmarkToDeleteListener, MarkToDeleteListener, UploadPreparedDeleteFileListener {
 

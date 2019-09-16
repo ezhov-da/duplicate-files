@@ -9,8 +9,8 @@ import javax.swing.*;
 import javax.swing.filechooser.FileFilter;
 import java.awt.*;
 import java.io.File;
-import java.util.*;
 import java.util.List;
+import java.util.*;
 
 public class LoadStampFilePanel extends JPanel {
     private JTextField textFieldFileStampGenerator;

@@ -9,7 +9,7 @@ public class XmlFileBruteForceCreatorIT {
     @Test
     public void run() {
         XmlFileBruteForceCreator xmlFileBruteForceCreator =
-                new XmlFileBruteForceCreator(new File("D:/изображения/жена-mi-20190317"), new File("D:/duplicate-files-md5.xml"));
+                new XmlFileBruteForceCreator(new File("E:\\фото-разобрать"), new File("D:/duplicate-files-md5.xml"));
         xmlFileBruteForceCreator.run(System.out::println);
     }
 }

@@ -6,6 +6,8 @@ import javax.swing.*;
 import javax.swing.filechooser.FileFilter;
 import java.awt.*;
 import java.io.File;
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -140,14 +142,15 @@ public class StampPanel extends JPanel {
 
         @Override
         protected void process(List<String> chunks) {
+            File file = new File(chunks.get(0));
             String text =
                     "<html>Обработано файлов: <b>" + counterFiles.get() +
-                            " </b>Сейчас: <i>" + chunks.get(0) + "</i>";
+                            " </b>Сейчас: <i>" + chunks.get(0) + ". Размер: " + new BigDecimal((file.length() / 1024D / 1024D)).setScale(2, RoundingMode.UP).doubleValue() + " МБ</i>";
             StampPanel.this.labelStampGeneratorInfo.setText(text);
         }
 
         @Override
-        protected String doInBackground() throws Exception {
+        protected String doInBackground() {
             xmlFileBruteForceCreator.run(absoluteFilePath -> {
                 if (StampWorker.this.isCancelled()) {
                     xmlFileBruteForceCreator.stop();

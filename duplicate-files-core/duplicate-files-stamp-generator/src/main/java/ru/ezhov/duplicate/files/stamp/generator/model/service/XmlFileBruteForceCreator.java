@@ -5,18 +5,13 @@ import ru.ezhov.duplicate.files.stamp.generator.infrastructure.generator.Md5Stam
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamException;
 import javax.xml.stream.XMLStreamWriter;
-import java.io.File;
-import java.io.FileOutputStream;
-import java.io.OutputStreamWriter;
-import java.io.Writer;
+import java.io.*;
 import java.nio.charset.StandardCharsets;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class XmlFileBruteForceCreator {
-
     private static final Logger LOG = Logger.getLogger(XmlFileBruteForceCreator.class.getName());
-
     private File root;
     private File report;
     private FileBruteForceService fileBruteForceService;
@@ -28,38 +23,42 @@ public class XmlFileBruteForceCreator {
     }
 
     public void run(FileListener fileListener) {
+        XMLStreamWriter xmlStreamWriter = null;
         try (Writer writer = new OutputStreamWriter(new FileOutputStream(report), StandardCharsets.UTF_8)) {
             LOG.log(Level.CONFIG, "начало записи xml файла");
-            XMLStreamWriter xmlStreamWriter = XMLOutputFactory.newInstance().createXMLStreamWriter(writer);
+            xmlStreamWriter = XMLOutputFactory.newInstance().createXMLStreamWriter(writer);
             xmlStreamWriter.writeStartDocument("UTF-8", "1.0");
             xmlStreamWriter.writeStartElement("duplicate-files");
             xmlStreamWriter.writeAttribute("type", "stamps");
             xmlStreamWriter.writeAttribute("version", "0.1");
             xmlStreamWriter.writeStartElement("files");
             try {
+                XMLStreamWriter finalXmlStreamWriter = xmlStreamWriter;
                 fileBruteForceService.bruteForceStart(fileStamp -> {
                     try {
                         if (fileListener != null) {
                             fileListener.stampOn(fileStamp.file().getAbsolutePath());
                         }
-                        xmlStreamWriter.writeStartElement("file");
-                        xmlStreamWriter.writeAttribute("stamp", fileStamp.stamp());
-                        xmlStreamWriter.writeCharacters(fileStamp.file().getAbsolutePath());
-                        xmlStreamWriter.writeEndElement();
+                        finalXmlStreamWriter.writeStartElement("file");
+                        finalXmlStreamWriter.writeAttribute("stamp", fileStamp.stamp());
+                        finalXmlStreamWriter.writeCharacters(fileStamp.file().getAbsolutePath());
+                        finalXmlStreamWriter.writeEndElement();
                     } catch (XMLStreamException e) {
                         e.printStackTrace();
                     }
                 });
-            } catch (Exception e) {
+            } catch (Throwable e) {
                 LOG.log(Level.WARNING, "Ошибка при создании отпечатка файла", e);
             }
-            xmlStreamWriter.writeEndElement();
-            xmlStreamWriter.writeEndElement();
+            xmlStreamWriter.writeEndElement();//files
+            xmlStreamWriter.writeEndElement();//duplicate-files
             xmlStreamWriter.writeEndDocument();
             xmlStreamWriter.close();
             LOG.log(Level.CONFIG, "xml файл записан ''{0}''", report.getAbsolutePath());
-        } catch (Exception e) {
-            e.printStackTrace();
+        } catch (XMLStreamException e) {
+            LOG.log(Level.SEVERE, "Ошибка записи XML", e);
+        } catch (IOException e) {
+            LOG.log(Level.SEVERE, "Ошибка при записи файла", e);
         }
     }
 
