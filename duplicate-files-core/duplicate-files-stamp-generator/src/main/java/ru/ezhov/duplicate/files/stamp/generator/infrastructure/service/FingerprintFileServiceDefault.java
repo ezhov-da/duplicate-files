@@ -27,7 +27,7 @@ class FingerprintFileServiceDefault implements FingerprintFileService {
     public void start(FingerprintFileListener fingerprintFileListener) throws FingerprintFileServiceException {
         runningBruteForce.set(true);
         try {
-            fillMd5FilesRecursive(root, stampGenerator, fingerprintFileListener, pathname -> pathname.length() < 1000_000_000);
+            fillMd5FilesRecursive(root, stampGenerator, fingerprintFileListener, null);
         } catch (Exception e) {
             throw new FingerprintFileServiceException(e);
         } finally {
@@ -45,7 +45,12 @@ class FingerprintFileServiceDefault implements FingerprintFileService {
         }
         if (file.isDirectory()) {
             LOG.log(Level.CONFIG, "обработка папки ''{0}''", file.getAbsolutePath());
-            File[] files = file.listFiles(fileFilter);
+            File[] files;
+            if (fileFilter == null) {
+                files = file.listFiles();
+            } else {
+                files = file.listFiles(fileFilter);
+            }
             if (files != null) {
                 for (File f : files) {
                     fillMd5FilesRecursive(f, stampGenerator, fingerprintFileListener, fileFilter);

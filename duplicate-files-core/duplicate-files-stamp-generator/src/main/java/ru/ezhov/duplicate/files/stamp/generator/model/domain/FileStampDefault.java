@@ -18,4 +18,9 @@ public class FileStampDefault implements FileStamp {
     public File file() {
         return file;
     }
+
+    @Override
+    public String toString() {
+        return file.getAbsolutePath();
+    }
 }
