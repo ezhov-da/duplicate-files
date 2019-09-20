@@ -1,6 +1,6 @@
 package ru.ezhov.duplicate.files.gui.application.delete.domain;
 
-import ru.ezhov.duplicate.files.stamp.analyzer.model.domain.FilePath;
+import ru.ezhov.duplicate.files.stamp.analyzer.model.service.FilePath;
 
 import java.io.File;
 import java.util.Objects;
@@ -14,11 +14,6 @@ public class PreparedToDelete {
         this.filePath = filePath;
         this.file = new File(filePath.path());
     }
-
-    public PreparedToDelete(String path) {
-        this(new FilePath(path));
-    }
-
 
     public FilePath getFilePath() {
         return filePath;

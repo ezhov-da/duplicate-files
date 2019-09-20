@@ -4,7 +4,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import ru.ezhov.duplicate.files.gui.application.delete.domain.PreparedToDelete;
-import ru.ezhov.duplicate.files.stamp.analyzer.model.domain.FilePath;
+import ru.ezhov.duplicate.files.stamp.analyzer.model.service.FilePath;
 
 import javax.swing.*;
 import javax.xml.xpath.XPathConstants;
@@ -45,7 +45,7 @@ public class UploadPanel extends JPanel {
 //                }
 //            });
             int action = fileChooser.showSaveDialog(UploadPanel.this);
-//            if (action == JFileChooser.APPROVE_OPTION) {
+//            if (stampedOn == JFileChooser.APPROVE_OPTION) {
 //                String fileAbsolutePath = fileChooser.getSelectedFile().getAbsolutePath();
 //                if (!fileAbsolutePath.endsWith(".xml.dblfq")) {
 //                    fileAbsolutePath = fileAbsolutePath + ".xml.dblfq";
@@ -65,7 +65,13 @@ public class UploadPanel extends JPanel {
                 List<FilePath> filePaths = new ArrayList<>();
                 for (int i = 0; i < nodeList.getLength(); i++) {
                     Node item = nodeList.item(i);
-                    filePaths.add(new FilePath(item.getTextContent()));
+                    filePaths.add(new FilePath() {
+
+                        @Override
+                        public String path() {
+                            return item.getTextContent();
+                        }
+                    });
                 }
                 fireUploadPreparedDeleteFileListener(filePaths);
             } catch (Exception ex) {

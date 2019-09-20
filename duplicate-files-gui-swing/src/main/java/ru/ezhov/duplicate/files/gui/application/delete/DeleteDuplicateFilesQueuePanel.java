@@ -4,7 +4,7 @@ import ru.ezhov.duplicate.files.gui.application.MarkToDeleteListener;
 import ru.ezhov.duplicate.files.gui.application.UnmarkToDeleteListener;
 import ru.ezhov.duplicate.files.gui.application.delete.domain.PreparedToDelete;
 import ru.ezhov.duplicate.files.gui.application.repository.ThumbnailsRepository;
-import ru.ezhov.duplicate.files.stamp.analyzer.model.domain.FilePath;
+import ru.ezhov.duplicate.files.stamp.analyzer.model.service.FilePath;
 
 import javax.swing.*;
 import java.awt.*;
@@ -118,7 +118,7 @@ public class DeleteDuplicateFilesQueuePanel extends JPanel implements UnmarkToDe
                         if (file.exists()) {
                             Thread.sleep(250);
                             boolean delete = file.delete();
-                            LOG.log(Level.CONFIG, "method=deleteAll action=\"файл ''{0}'' удален ''{1}''\"", new Object[]{file, delete});
+                            LOG.log(Level.CONFIG, "method=deleteAll stampedOn=\"файл ''{0}'' удален ''{1}''\"", new Object[]{file, delete});
                             process(Collections.singletonList(new DeleteProcces(preparedToDeletes.size(), i + 1, preparedToDelete)));
                         }
                     }

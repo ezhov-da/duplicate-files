@@ -1,11 +1,13 @@
-package ru.ezhov.duplicate.files.stamp.analyzer.model.domain;
+package ru.ezhov.duplicate.files.stamp.analyzer.infrastructure.service;
+
+import ru.ezhov.duplicate.files.stamp.analyzer.model.service.DuplicateId;
 
 import java.util.Objects;
 
-public class DuplicateId {
+class DuplicateIdImpl implements DuplicateId {
     private String value;
 
-    public DuplicateId(String value) {
+    DuplicateIdImpl(String value) {
         this.value = value;
     }
 
@@ -17,8 +19,8 @@ public class DuplicateId {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        DuplicateId duplicateId = (DuplicateId) o;
-        return Objects.equals(value, duplicateId.value);
+        DuplicateIdImpl duplicateIdImpl = (DuplicateIdImpl) o;
+        return Objects.equals(value, duplicateIdImpl.value);
     }
 
     @Override

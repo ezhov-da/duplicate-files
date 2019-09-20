@@ -1,7 +1,7 @@
 package ru.ezhov.duplicate.files.gui.application.analyse.load;
 
-import ru.ezhov.duplicate.files.stamp.analyzer.model.domain.DuplicateId;
-import ru.ezhov.duplicate.files.stamp.analyzer.model.domain.FilePath;
+import ru.ezhov.duplicate.files.stamp.analyzer.model.service.DuplicateId;
+import ru.ezhov.duplicate.files.stamp.analyzer.model.service.FilePath;
 
 import java.util.List;
 import java.util.Map;

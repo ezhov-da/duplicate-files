@@ -1,11 +1,13 @@
-package ru.ezhov.duplicate.files.stamp.analyzer.model.domain;
+package ru.ezhov.duplicate.files.stamp.analyzer.infrastructure.service;
+
+import ru.ezhov.duplicate.files.stamp.analyzer.model.service.FilePath;
 
 import java.util.Objects;
 
-public class FilePath {
+class FilePathImpl implements FilePath {
     private String path;
 
-    public FilePath(String path) {
+    FilePathImpl(String path) {
         this.path = path;
     }
 
@@ -17,7 +19,7 @@ public class FilePath {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        FilePath filePath = (FilePath) o;
+        FilePathImpl filePath = (FilePathImpl) o;
         return Objects.equals(path, filePath.path);
     }
 

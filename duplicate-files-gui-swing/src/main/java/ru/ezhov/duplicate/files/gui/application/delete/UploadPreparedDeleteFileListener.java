@@ -1,6 +1,6 @@
 package ru.ezhov.duplicate.files.gui.application.delete;
 
-import ru.ezhov.duplicate.files.stamp.analyzer.model.domain.FilePath;
+import ru.ezhov.duplicate.files.stamp.analyzer.model.service.FilePath;
 
 import java.util.List;
 

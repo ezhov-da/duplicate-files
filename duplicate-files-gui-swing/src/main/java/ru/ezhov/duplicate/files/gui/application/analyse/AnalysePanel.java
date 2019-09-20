@@ -7,8 +7,8 @@ import ru.ezhov.duplicate.files.gui.application.analyse.load.LoadStampFilePanel;
 import ru.ezhov.duplicate.files.gui.application.analyse.result.AnalyseResultTreeTablePanel;
 import ru.ezhov.duplicate.files.gui.application.delete.UploadPreparedDeleteFileListener;
 import ru.ezhov.duplicate.files.gui.application.repository.ThumbnailsRepository;
-import ru.ezhov.duplicate.files.stamp.analyzer.model.domain.DuplicateId;
-import ru.ezhov.duplicate.files.stamp.analyzer.model.domain.FilePath;
+import ru.ezhov.duplicate.files.stamp.analyzer.model.service.DuplicateId;
+import ru.ezhov.duplicate.files.stamp.analyzer.model.service.FilePath;
 
 import javax.swing.*;
 import java.awt.*;

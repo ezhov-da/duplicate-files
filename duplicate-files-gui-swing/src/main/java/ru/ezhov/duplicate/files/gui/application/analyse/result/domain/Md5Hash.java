@@ -1,12 +1,12 @@
 package ru.ezhov.duplicate.files.gui.application.analyse.result.domain;
 
-import ru.ezhov.duplicate.files.stamp.analyzer.model.domain.DuplicateId;
+import ru.ezhov.duplicate.files.stamp.analyzer.model.service.DuplicateId;
 
 public class Md5Hash {
     String id;
 
-    public Md5Hash(DuplicateId duplicateId) {
-        this.id = duplicateId.id();
+    public Md5Hash(DuplicateId DuplicateId) {
+        this.id = DuplicateId.id();
     }
 
     public String id() {

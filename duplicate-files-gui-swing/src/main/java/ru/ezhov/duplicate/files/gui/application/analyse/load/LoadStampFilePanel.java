@@ -1,9 +1,15 @@
 package ru.ezhov.duplicate.files.gui.application.analyse.load;
 
-import ru.ezhov.duplicate.files.stamp.analyzer.model.domain.DuplicateId;
-import ru.ezhov.duplicate.files.stamp.analyzer.model.domain.FilePath;
-import ru.ezhov.duplicate.files.stamp.analyzer.model.service.DuplicateFilesAnalyserService;
-import ru.ezhov.duplicate.files.stamp.analyzer.model.service.DuplicateFilesAnalyserServiceException;
+import ru.ezhov.duplicate.files.stamp.analyzer.infrastructure.service.DuplicateFingerPrintFilesAnalyserServiceFactory;
+import ru.ezhov.duplicate.files.stamp.analyzer.model.service.DuplicateId;
+import ru.ezhov.duplicate.files.stamp.analyzer.model.service.FilePath;
+import ru.ezhov.duplicate.files.stamp.analyzer.model.service.DuplicateFingerPrintFilesAnalyserService;
+import ru.ezhov.duplicate.files.stamp.analyzer.model.service.DuplicateFingerprintFileAnalyserServiceException;
+import ru.ezhov.duplicate.files.stamp.analyzer.model.service.FingerprintFile;
+import ru.ezhov.duplicate.files.stamp.generator.infrastructure.repository.FingerprintFileRepositoryFactory;
+import ru.ezhov.duplicate.files.stamp.generator.model.domain.FileStamp;
+import ru.ezhov.duplicate.files.stamp.generator.model.repository.FingerprintFileRepository;
+import ru.ezhov.duplicate.files.stamp.generator.model.repository.FingerprintFileRepositoryException;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileFilter;
@@ -11,6 +17,7 @@ import java.awt.*;
 import java.io.File;
 import java.util.List;
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class LoadStampFilePanel extends JPanel {
     private JTextField textFieldFileStampGenerator;
@@ -45,13 +52,30 @@ public class LoadStampFilePanel extends JPanel {
             }
         });
         buttonAnalyseStampGenerator.addActionListener(e -> {
-            DuplicateFilesAnalyserService duplicateFilesAnalyserService = new DuplicateFilesAnalyserService();
+            DuplicateFingerPrintFilesAnalyserService duplicateFilesAnalyserService = DuplicateFingerPrintFilesAnalyserServiceFactory.newInstance();
+            FingerprintFileRepository fingerprintFileRepository = FingerprintFileRepositoryFactory.newInstance(new File(textFieldFileStampGenerator.getText()));
             try {
-                Map<DuplicateId, List<FilePath>> map = duplicateFilesAnalyserService.findDuplicate(new File(textFieldFileStampGenerator.getText()));
-                for(DuplicateAnalyseCompleteListener listener : duplicateAnalyseCompleteListeners){
+                List<FileStamp> all = fingerprintFileRepository.all();
+                List<FingerprintFile> fingerprintFiles =
+                        all.stream().map(fpf -> new FingerprintFile() {
+
+                            @Override
+                            public String fingerprint() {
+                                return fpf.stamp();
+                            }
+
+                            @Override
+                            public File file() {
+                                return fpf.file();
+                            }
+                        }).collect(Collectors.toList());
+
+
+                Map<DuplicateId, List<FilePath>> map = duplicateFilesAnalyserService.findDuplicate(fingerprintFiles);
+                for (DuplicateAnalyseCompleteListener listener : duplicateAnalyseCompleteListeners) {
                     listener.complete(Collections.unmodifiableMap(map));
                 }
-            } catch (DuplicateFilesAnalyserServiceException e1) {
+            } catch (FingerprintFileRepositoryException e1) {
                 e1.printStackTrace();
             }
         });

@@ -1,6 +1,13 @@
 package ru.ezhov.duplicate.files.gui.application.stamp;
 
-import ru.ezhov.duplicate.files.stamp.generator.model.service.XmlFileBruteForceCreator;
+import ru.ezhov.duplicate.files.stamp.generator.infrastructure.repository.FingerprintFileRepositoryFactory;
+import ru.ezhov.duplicate.files.stamp.generator.infrastructure.service.FingerprintFileServiceFactory;
+import ru.ezhov.duplicate.files.stamp.generator.model.domain.FileStamp;
+import ru.ezhov.duplicate.files.stamp.generator.model.repository.FingerprintFileRepository;
+import ru.ezhov.duplicate.files.stamp.generator.model.repository.FingerprintFileRepositoryException;
+import ru.ezhov.duplicate.files.stamp.generator.model.service.FingerprintFileService;
+import ru.ezhov.duplicate.files.stamp.generator.model.service.FingerprintFileServiceAlreadyStoppedException;
+import ru.ezhov.duplicate.files.stamp.generator.model.service.FingerprintFileServiceException;
 
 import javax.swing.*;
 import javax.swing.filechooser.FileFilter;
@@ -8,6 +15,7 @@ import java.awt.*;
 import java.io.File;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -127,46 +135,64 @@ public class StampPanel extends JPanel {
         });
     }
 
-    private class StampWorker extends SwingWorker<String, String> {
-
+    private class StampWorker extends SwingWorker<String, FileStamp> {
         private File root;
         private File report;
-        private XmlFileBruteForceCreator xmlFileBruteForceCreator;
+        private FingerprintFileService fingerprintFileService;
+        private FingerprintFileRepository fingerprintFileRepository;
         private AtomicInteger counterFiles = new AtomicInteger();
+        private List<FileStamp> fileStamps = new ArrayList<>();
 
         public StampWorker(File root, File report) {
             this.root = root;
             this.report = report;
-            xmlFileBruteForceCreator = new XmlFileBruteForceCreator(root, report);
+            fingerprintFileService = FingerprintFileServiceFactory.newInstance(root);
+            fingerprintFileRepository = FingerprintFileRepositoryFactory.newInstance(report);
         }
 
         @Override
-        protected void process(List<String> chunks) {
-            File file = new File(chunks.get(0));
+        protected void process(List<FileStamp> chunks) {
+            FileStamp fileStamp = chunks.get(0);
             String text =
                     "<html>Обработано файлов: <b>" + counterFiles.get() +
-                            " </b>Сейчас: <i>" + chunks.get(0) + ". Размер: " + new BigDecimal((file.length() / 1024D / 1024D)).setScale(2, RoundingMode.UP).doubleValue() + " МБ</i>";
+                            " </b>Сейчас: <i>" + chunks.get(0) + ". Размер: " + BigDecimal.valueOf((fileStamp.file().length() / 1024D / 1024D)).setScale(2, RoundingMode.UP).doubleValue() + " МБ</i>";
             StampPanel.this.labelStampGeneratorInfo.setText(text);
         }
 
         @Override
-        protected String doInBackground() {
-            xmlFileBruteForceCreator.run(absoluteFilePath -> {
-                if (StampWorker.this.isCancelled()) {
-                    xmlFileBruteForceCreator.stop();
-                }
-                counterFiles.incrementAndGet();
-                StampWorker.this.publish(absoluteFilePath);
-            });
+        protected String doInBackground() throws FingerprintFileServiceException {
+            fingerprintFileService.start(
+                    fileStamp -> {
+                        if (StampWorker.this.isCancelled()) {
+                            try {
+                                fingerprintFileService.stop();
+                            } catch (FingerprintFileServiceAlreadyStoppedException e) {
+                                e.printStackTrace();
+                            }
+                        }
+                        fileStamps.add(fileStamp);
+                        counterFiles.incrementAndGet();
+                        StampWorker.this.publish(fileStamp);
+                    }
+            );
             return null;
         }
 
         @Override
         protected void done() {
-            String text =
-                    "<html>Обработано файлов: <b>" + counterFiles.get() +
-                            " </b>Отпечатки файлов сохранены по пути: " + textFieldReportStampGenerator.getText();
+            String text;
+            try {
+                fingerprintFileRepository.save(fileStamps);
+                text = "<html>Обработано файлов: <b>" + counterFiles.get() +
+                        " </b>Отпечатки файлов сохранены по пути: " + textFieldReportStampGenerator.getText();
+                StampPanel.this.labelStampGeneratorInfo.setText(text);
+            } catch (FingerprintFileRepositoryException e) {
+                text = "<html><font color=\"red\">Обработано файлов: <b>" + counterFiles.get() +
+                        " </b>Ошибка сохранения отпечатков в файле " + textFieldReportStampGenerator.getText() + "</font>";
+                e.printStackTrace();
+            }
             StampPanel.this.labelStampGeneratorInfo.setText(text);
+
             buttonStartStampGenerator.setEnabled(true);
             buttonStopStampGenerator.setEnabled(false);
         }
