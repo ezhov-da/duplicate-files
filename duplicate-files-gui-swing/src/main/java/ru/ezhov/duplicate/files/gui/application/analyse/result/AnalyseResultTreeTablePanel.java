@@ -13,18 +13,36 @@ import ru.ezhov.duplicate.files.gui.application.delete.UploadPreparedDeleteFileL
 import ru.ezhov.duplicate.files.gui.application.repository.ThumbnailsRepository;
 import ru.ezhov.duplicate.files.stamp.analyzer.model.service.DuplicateId;
 import ru.ezhov.duplicate.files.stamp.analyzer.model.service.FilePath;
-import ru.ezhov.duplicate.files.stamp.analyzer.model.service.FilePath;
 
-import javax.swing.*;
+import javax.swing.Box;
+import javax.swing.BoxLayout;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JSpinner;
+import javax.swing.JTable;
+import javax.swing.JTree;
+import javax.swing.SpinnerNumberModel;
+import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
 import javax.swing.table.DefaultTableCellRenderer;
-import java.awt.*;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Desktop;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Enumeration;
+import java.util.HashMap;
 import java.util.List;
-import java.util.*;
+import java.util.Map;
 
 public class AnalyseResultTreeTablePanel extends JPanel implements UnmarkToDeleteListener, MarkToDeleteListener, UploadPreparedDeleteFileListener {
     private static final int COUNT_DUPLICATE_FILE_ON_PAGE = 100;
@@ -237,7 +255,7 @@ public class AnalyseResultTreeTablePanel extends JPanel implements UnmarkToDelet
 
         recursiveMarkedByCacheFilePaths(root);
 
-        return new DefaultTreeTableModel(root, Arrays.asList("Файл", "Превью", "Открыть", "Добавить в удаляемые")) {
+        return new DefaultTreeTableModel(root, Arrays.asList("File", "Preview", "Open", "Add to delete")) {
             @Override
             public Object getValueAt(Object node, int column) {
                 DefaultMutableTreeTableNode mtn = (DefaultMutableTreeTableNode) node;
@@ -284,7 +302,7 @@ public class AnalyseResultTreeTablePanel extends JPanel implements UnmarkToDelet
 
     @Override
     public void mark(FilePath filePath) {
-        //TODO: возможно не нужно
+        //TODO: maybe not
     }
 
     @Override
@@ -362,7 +380,7 @@ public class AnalyseResultTreeTablePanel extends JPanel implements UnmarkToDelet
     }
 
     private class MarkedAfterFirst extends JPanel {
-        private JButton buttonMark = new JButton("Подготовить для удаления все файлы на этой странице, кроме первой в каждой группе");
+        private JButton buttonMark = new JButton("Prepare to delete all files on this page, except the first in each group");
 
         public MarkedAfterFirst() {
             BoxLayout boxLayout = new BoxLayout(this, BoxLayout.X_AXIS);

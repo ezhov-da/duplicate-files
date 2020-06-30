@@ -1,16 +1,20 @@
 package ru.ezhov.duplicate.files.gui.application.delete;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.JButton;
+import javax.swing.JDialog;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.SwingConstants;
+import java.awt.BorderLayout;
 
 public class DeleteProccesDialog extends JDialog {
-    private JLabel labelInfo = new JLabel("Нажмите \"Удалить\" для начала удаления");
-    private JButton buttonDelete = new JButton("Удалить");
-    private JButton buttonCancel = new JButton("Отменить");
+    private JLabel labelInfo = new JLabel("Click \"Delete\" to start");
+    private JButton buttonDelete = new JButton("Delete");
+    private JButton buttonCancel = new JButton("Cancel");
 
     public DeleteProccesDialog() {
         setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-        setTitle("Удаление файлов");
+        setTitle("Deleting Files");
         labelInfo.setHorizontalAlignment(SwingConstants.CENTER);
         add(labelInfo, BorderLayout.CENTER);
 

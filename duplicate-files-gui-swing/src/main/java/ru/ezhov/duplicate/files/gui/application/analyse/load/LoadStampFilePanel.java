@@ -1,36 +1,40 @@
 package ru.ezhov.duplicate.files.gui.application.analyse.load;
 
 import ru.ezhov.duplicate.files.stamp.analyzer.infrastructure.service.DuplicateFingerPrintFilesAnalyserServiceFactory;
+import ru.ezhov.duplicate.files.stamp.analyzer.model.service.DuplicateFingerPrintFilesAnalyserService;
 import ru.ezhov.duplicate.files.stamp.analyzer.model.service.DuplicateId;
 import ru.ezhov.duplicate.files.stamp.analyzer.model.service.FilePath;
-import ru.ezhov.duplicate.files.stamp.analyzer.model.service.DuplicateFingerPrintFilesAnalyserService;
-import ru.ezhov.duplicate.files.stamp.analyzer.model.service.DuplicateFingerprintFileAnalyserServiceException;
 import ru.ezhov.duplicate.files.stamp.analyzer.model.service.FingerprintFile;
 import ru.ezhov.duplicate.files.stamp.generator.infrastructure.repository.FingerprintFileRepositoryFactory;
 import ru.ezhov.duplicate.files.stamp.generator.model.domain.FileStamp;
 import ru.ezhov.duplicate.files.stamp.generator.model.repository.FingerprintFileRepository;
 import ru.ezhov.duplicate.files.stamp.generator.model.repository.FingerprintFileRepositoryException;
 
-import javax.swing.*;
+import javax.swing.JButton;
+import javax.swing.JFileChooser;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
 import javax.swing.filechooser.FileFilter;
-import java.awt.*;
+import java.awt.BorderLayout;
 import java.io.File;
+import java.util.Collections;
+import java.util.HashSet;
 import java.util.List;
-import java.util.*;
+import java.util.Map;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public class LoadStampFilePanel extends JPanel {
-    private JTextField textFieldFileStampGenerator;
-    private JButton buttonBrowseFileStampGenerator;
-    private JButton buttonAnalyseStampGenerator;
+    private final JTextField textFieldFileStampGenerator;
 
-    private Set<DuplicateAnalyseCompleteListener> duplicateAnalyseCompleteListeners = new HashSet();
+    private final Set<DuplicateAnalyseCompleteListener> duplicateAnalyseCompleteListeners = new HashSet<>();
 
     public LoadStampFilePanel() {
         setLayout(new BorderLayout());
         textFieldFileStampGenerator = new JTextField();
-        buttonBrowseFileStampGenerator = new JButton("...");
-        buttonAnalyseStampGenerator = new JButton("Анализировать");
+        JButton buttonBrowseFileStampGenerator = new JButton("...");
+        JButton buttonAnalyseStampGenerator = new JButton("Analyze");
         buttonBrowseFileStampGenerator.addActionListener(e -> {
             JFileChooser fileChooser = new JFileChooser();
             fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);

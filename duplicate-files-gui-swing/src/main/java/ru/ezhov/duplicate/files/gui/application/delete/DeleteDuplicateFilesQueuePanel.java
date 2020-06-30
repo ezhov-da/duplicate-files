@@ -6,8 +6,20 @@ import ru.ezhov.duplicate.files.gui.application.delete.domain.PreparedToDelete;
 import ru.ezhov.duplicate.files.gui.application.repository.ThumbnailsRepository;
 import ru.ezhov.duplicate.files.stamp.analyzer.model.service.FilePath;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.BorderFactory;
+import javax.swing.BoxLayout;
+import javax.swing.DefaultListCellRenderer;
+import javax.swing.DefaultListModel;
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.SwingUtilities;
+import javax.swing.SwingWorker;
+import java.awt.BorderLayout;
+import java.awt.Component;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.util.ArrayList;
@@ -40,7 +52,7 @@ public class DeleteDuplicateFilesQueuePanel extends JPanel implements UnmarkToDe
         setLayout(new BorderLayout());
         setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createEmptyBorder(5, 5, 5, 5),
-                BorderFactory.createTitledBorder("Подготовленные файлы для удаления")
+                BorderFactory.createTitledBorder("Prepared files for deletion")
         ));
 
 
@@ -69,7 +81,7 @@ public class DeleteDuplicateFilesQueuePanel extends JPanel implements UnmarkToDe
 
         uploadPanel.addUploadPreparedDeleteFileListener(this);
 
-        JButton buttonClear = new JButton("Очистить список");
+        JButton buttonClear = new JButton("Clear the list");
         buttonClear.addActionListener(e -> {
             clearModel();
         });
@@ -85,7 +97,7 @@ public class DeleteDuplicateFilesQueuePanel extends JPanel implements UnmarkToDe
         BoxLayout boxLayoutBottom = new BoxLayout(panelBottom, BoxLayout.Y_AXIS);
         panelBottom.setLayout(boxLayoutBottom);
 
-        JButton buttonDelete = new JButton("Удалить подготовленные файлы");
+        JButton buttonDelete = new JButton("Delete prepared files");
 
         buttonDelete.addActionListener(e -> {
             deleteAll();
@@ -118,7 +130,7 @@ public class DeleteDuplicateFilesQueuePanel extends JPanel implements UnmarkToDe
                         if (file.exists()) {
                             Thread.sleep(250);
                             boolean delete = file.delete();
-                            LOG.log(Level.CONFIG, "method=deleteAll stampedOn=\"файл ''{0}'' удален ''{1}''\"", new Object[]{file, delete});
+                            LOG.log(Level.CONFIG, "method=deleteAll stampedOn=\"file ''{0}'' deleted ''{1}''\"", new Object[]{file, delete});
                             process(Collections.singletonList(new DeleteProcces(preparedToDeletes.size(), i + 1, preparedToDelete)));
                         }
                     }
@@ -128,7 +140,7 @@ public class DeleteDuplicateFilesQueuePanel extends JPanel implements UnmarkToDe
                 @Override
                 protected void process(List<DeleteProcces> chunks) {
                     chunks.forEach(dp -> {
-                        String text = String.format("%s из %s: %s", dp.number, dp.allCount, dp.preparedToDelete.getFilePath().path());
+                        String text = String.format("%s from %s: %s", dp.number, dp.allCount, dp.preparedToDelete.getFilePath().path());
                         deleteProccesDialog.publishInfo(text);
                     });
                 }

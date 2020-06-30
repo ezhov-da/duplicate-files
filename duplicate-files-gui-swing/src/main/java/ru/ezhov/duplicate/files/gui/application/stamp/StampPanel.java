@@ -9,9 +9,16 @@ import ru.ezhov.duplicate.files.stamp.generator.model.service.FingerprintFileSer
 import ru.ezhov.duplicate.files.stamp.generator.model.service.FingerprintFileServiceAlreadyStoppedException;
 import ru.ezhov.duplicate.files.stamp.generator.model.service.FingerprintFileServiceException;
 
-import javax.swing.*;
+import javax.swing.BorderFactory;
+import javax.swing.JButton;
+import javax.swing.JFileChooser;
+import javax.swing.JLabel;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
+import javax.swing.SwingWorker;
 import javax.swing.filechooser.FileFilter;
-import java.awt.*;
+import java.awt.BorderLayout;
 import java.io.File;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -38,7 +45,7 @@ public class StampPanel extends JPanel {
     private void init() {
         setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createEmptyBorder(5, 5, 5, 5),
-                BorderFactory.createTitledBorder("Создание отпечатков файлов")
+                BorderFactory.createTitledBorder("File stamp creation")
         ));
 
         textFieldRootPathFileStampGenerator = new JTextField();
@@ -54,8 +61,8 @@ public class StampPanel extends JPanel {
         panelBrowseReportFile.add(buttonBrowseReportStampGenerator, BorderLayout.EAST);
 
 
-        buttonStartStampGenerator = new JButton("Запустить создание отпечатков файлов");
-        buttonStopStampGenerator = new JButton("Остановить создание отпечатков файлов");
+        buttonStartStampGenerator = new JButton("Start file stamp creation");
+        buttonStopStampGenerator = new JButton("Stop file stamp creation");
         buttonStopStampGenerator.setEnabled(false);
         JPanel panelStamps = new JPanel(new BorderLayout());
         panelStamps.add(buttonStartStampGenerator, BorderLayout.CENTER);
@@ -69,7 +76,7 @@ public class StampPanel extends JPanel {
         panelTop.add(panelBrowse, BorderLayout.CENTER);
         panelTop.add(panelStamps, BorderLayout.EAST);
 
-        labelStampGeneratorInfo = new JLabel("Укажите корневую директорию для создания отпечатков файлов и путь для файла отпечатков");
+        labelStampGeneratorInfo = new JLabel("Specify the root directory for creating fingerprints of the files and the path for the fingerprint file");
         JPanel panelBottom = new JPanel(new BorderLayout());
         panelBottom.add(labelStampGeneratorInfo, BorderLayout.CENTER);
 
@@ -154,8 +161,8 @@ public class StampPanel extends JPanel {
         protected void process(List<FileStamp> chunks) {
             FileStamp fileStamp = chunks.get(0);
             String text =
-                    "<html>Обработано файлов: <b>" + counterFiles.get() +
-                            " </b>Сейчас: <i>" + chunks.get(0) + ". Размер: " + BigDecimal.valueOf((fileStamp.file().length() / 1024D / 1024D)).setScale(2, RoundingMode.UP).doubleValue() + " МБ</i>";
+                    "<html>Processed files : <b>" + counterFiles.get() +
+                            " </b>Current: <i>" + chunks.get(0) + ". Size: " + BigDecimal.valueOf((fileStamp.file().length() / 1024D / 1024D)).setScale(2, RoundingMode.UP).doubleValue() + " MB</i>";
             StampPanel.this.labelStampGeneratorInfo.setText(text);
         }
 
@@ -183,12 +190,12 @@ public class StampPanel extends JPanel {
             String text;
             try {
                 fingerprintFileRepository.save(fileStamps);
-                text = "<html>Обработано файлов: <b>" + counterFiles.get() +
-                        " </b>Отпечатки файлов сохранены по пути: " + textFieldReportStampGenerator.getText();
+                text = "<html>Files processed: <b>" + counterFiles.get() +
+                        " </b>Fingerprints saved along the path: " + textFieldReportStampGenerator.getText();
                 StampPanel.this.labelStampGeneratorInfo.setText(text);
             } catch (FingerprintFileRepositoryException e) {
-                text = "<html><font color=\"red\">Обработано файлов: <b>" + counterFiles.get() +
-                        " </b>Ошибка сохранения отпечатков в файле " + textFieldReportStampGenerator.getText() + "</font>";
+                text = "<html><font color=\"red\">Files processed: <b>" + counterFiles.get() +
+                        " </b>Error saving fingerprints to file " + textFieldReportStampGenerator.getText() + "</font>";
                 e.printStackTrace();
             }
             StampPanel.this.labelStampGeneratorInfo.setText(text);

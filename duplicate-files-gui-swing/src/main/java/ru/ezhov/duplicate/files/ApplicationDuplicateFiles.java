@@ -18,7 +18,7 @@ public class ApplicationDuplicateFiles {
         AtomicInteger counterDuplicate = new AtomicInteger();
         map.forEach((md5, paths) -> {
             if (paths.size() > 1) {
-                sbDuplicates.append("<p>").append(md5).append(". повторов: ").append(paths.size()).append("</p>");
+                sbDuplicates.append("<p>").append(md5).append(". repetitions: ").append(paths.size()).append("</p>");
                 paths.forEach(v ->
                 {
                     File file = new File(v);
@@ -35,10 +35,10 @@ public class ApplicationDuplicateFiles {
             }
         });
 
-        String begin = "<html><head><meta charset=\"utf-8\"></head><body><h2>Корневой каталог: " + root.getAbsolutePath() + ". Повторов: " + counterDuplicate.intValue() + "</h2>";
+        String begin = "<html><head><meta charset=\"utf-8\"></head><body><h2>Root directory: " + root.getAbsolutePath() + ". Replays: " + counterDuplicate.intValue() + "</h2>";
         String end = "</body></html>";
         String resultReport = begin + sbDuplicates.toString() + end;
         Files.write(htmlFileReport.toPath(), resultReport.getBytes(StandardCharsets.UTF_8), StandardOpenOption.CREATE);
-        LOG.log(Level.INFO, "html отчет сформирован по пути ''{0}''", htmlFileReport.getAbsolutePath());
+        LOG.log(Level.INFO, "html report generated along the path ''{0}''", htmlFileReport.getAbsolutePath());
     }
 }

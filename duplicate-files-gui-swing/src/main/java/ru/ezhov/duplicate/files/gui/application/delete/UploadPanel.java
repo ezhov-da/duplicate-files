@@ -6,10 +6,16 @@ import org.xml.sax.InputSource;
 import ru.ezhov.duplicate.files.gui.application.delete.domain.PreparedToDelete;
 import ru.ezhov.duplicate.files.stamp.analyzer.model.service.FilePath;
 
-import javax.swing.*;
+import javax.swing.BorderFactory;
+import javax.swing.DefaultListModel;
+import javax.swing.JButton;
+import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
 import javax.xml.xpath.XPathConstants;
 import javax.xml.xpath.XPathFactory;
-import java.awt.*;
+import java.awt.BorderLayout;
 import java.io.File;
 import java.io.FileInputStream;
 import java.util.ArrayList;
@@ -19,7 +25,7 @@ public class UploadPanel extends JPanel {
 
     private List<UploadPreparedDeleteFileListener> preparedDeleteFileListeners = new ArrayList<>();
     private JTextField textFieldPathToSave = new JTextField();
-    private JButton buttonOpen = new JButton("Открыть");
+    private JButton buttonOpen = new JButton("Open");
     private JButton buttonBrowseFileUpload = new JButton("...");
     private DefaultListModel<PreparedToDelete> defaultListModel;
 
@@ -29,7 +35,7 @@ public class UploadPanel extends JPanel {
 
     private void init() {
         this.setLayout(new BorderLayout());
-        this.setBorder(BorderFactory.createTitledBorder("Загрузить файл для удаления"));
+        this.setBorder(BorderFactory.createTitledBorder("Download file to delete"));
         buttonBrowseFileUpload.addActionListener(e -> {
             JFileChooser fileChooser = new JFileChooser();
             fileChooser.setFileSelectionMode(JFileChooser.FILES_ONLY);
@@ -76,7 +82,7 @@ public class UploadPanel extends JPanel {
                 fireUploadPreparedDeleteFileListener(filePaths);
             } catch (Exception ex) {
                 ex.printStackTrace();
-                JOptionPane.showMessageDialog(this, "Ошибка открытия файла", "Не удалось открыть файл", JOptionPane.INFORMATION_MESSAGE);
+                JOptionPane.showMessageDialog(this, "Error opening file", "Could not open file", JOptionPane.INFORMATION_MESSAGE);
             }
         });
 

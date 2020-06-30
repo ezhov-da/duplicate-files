@@ -1,7 +1,9 @@
 package ru.ezhov.duplicate.files.gui.application.stamp;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.JFrame;
+import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
+import java.awt.BorderLayout;
 
 public class StatisticPanelIT {
 

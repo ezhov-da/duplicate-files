@@ -2,11 +2,18 @@ package ru.ezhov.duplicate.files.gui.application.delete;
 
 import ru.ezhov.duplicate.files.gui.application.delete.domain.PreparedToDelete;
 
-import javax.swing.*;
+import javax.swing.BorderFactory;
+import javax.swing.DefaultListModel;
+import javax.swing.JButton;
+import javax.swing.JFileChooser;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
 import javax.swing.filechooser.FileFilter;
 import javax.xml.stream.XMLOutputFactory;
 import javax.xml.stream.XMLStreamWriter;
-import java.awt.*;
+import java.awt.BorderLayout;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.io.OutputStreamWriter;
@@ -15,7 +22,7 @@ import java.nio.charset.StandardCharsets;
 
 public class SavePanel extends JPanel {
     private JTextField textFieldPathToSave = new JTextField();
-    private JButton buttonSave = new JButton("Сохранить");
+    private JButton buttonSave = new JButton("Save");
     private JButton buttonBrowseFileSave = new JButton("...");
     private DefaultListModel<PreparedToDelete> defaultListModel;
 
@@ -26,7 +33,7 @@ public class SavePanel extends JPanel {
 
     private void init() {
         this.setLayout(new BorderLayout());
-        this.setBorder(BorderFactory.createTitledBorder("Сохранить файл для удаления"));
+        this.setBorder(BorderFactory.createTitledBorder("Save file for deletion"));
         buttonBrowseFileSave.addActionListener(e -> {
             JFileChooser fileChooser = new JFileChooser();
             fileChooser.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
@@ -71,7 +78,7 @@ public class SavePanel extends JPanel {
                 xmlStreamWriter.writeEndDocument();
                 xmlStreamWriter.close();
 
-                JOptionPane.showMessageDialog(this, "Файл для удаления сформирован по пути: " + file.getAbsolutePath(), "Файл для удаления", JOptionPane.INFORMATION_MESSAGE);
+                JOptionPane.showMessageDialog(this, "File for deletion generated along the path: " + file.getAbsolutePath(), "File to delete", JOptionPane.INFORMATION_MESSAGE);
             } catch (Exception e1) {
                 e1.printStackTrace();
             }

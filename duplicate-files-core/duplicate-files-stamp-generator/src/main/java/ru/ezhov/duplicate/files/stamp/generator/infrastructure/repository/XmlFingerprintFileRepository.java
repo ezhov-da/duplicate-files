@@ -40,7 +40,7 @@ class XmlFingerprintFileRepository implements FingerprintFileRepository {
     public void save(List<FileStamp> fileStampDefaults) throws FingerprintFileRepositoryException {
         XMLStreamWriter xmlStreamWriter = null;
         try (Writer writer = new OutputStreamWriter(new FileOutputStream(store), StandardCharsets.UTF_8)) {
-            LOG.log(Level.CONFIG, "начало записи xml файла");
+            LOG.log(Level.CONFIG, "start of xml file recording");
             xmlStreamWriter = XMLOutputFactory.newInstance().createXMLStreamWriter(writer);
             xmlStreamWriter.writeStartDocument("UTF-8", "1.0");
             xmlStreamWriter.writeStartElement("duplicate-files");
@@ -56,21 +56,21 @@ class XmlFingerprintFileRepository implements FingerprintFileRepository {
                         finalXmlStreamWriter.writeCharacters(fileStampDefault.file().getAbsolutePath());
                         finalXmlStreamWriter.writeEndElement();
                     } catch (XMLStreamException e) {
-                        LOG.log(Level.WARNING, "Ошибка при записи отпечатка '" + fileStampDefault + "' в файл '" + store + "'", e);
+                        LOG.log(Level.WARNING, "Error writing fingerprint '" + fileStampDefault + "' to file '" + store + "'", e);
                     }
                 });
             } catch (Throwable e) {
-                LOG.log(Level.WARNING, "Ошибка при создании сохранении отпечатков в файл " + store, e);
+                LOG.log(Level.WARNING, "Error creating save fingerprints to file " + store, e);
             }
             xmlStreamWriter.writeEndElement();//files
             xmlStreamWriter.writeEndElement();//duplicate-files
             xmlStreamWriter.writeEndDocument();
             xmlStreamWriter.close();
-            LOG.log(Level.CONFIG, "method=save action=\"xml файл записан ''{0}''\"", store.getAbsolutePath());
+            LOG.log(Level.CONFIG, "method=save action=\"xml file recorded ''{0}''\"", store.getAbsolutePath());
         } catch (XMLStreamException e) {
-            throw new FingerprintFileRepositoryException("Ошибка записи XML в файл " + store, e);
+            throw new FingerprintFileRepositoryException("Error writing XML to file " + store, e);
         } catch (IOException e) {
-            throw new FingerprintFileRepositoryException("Ошибка при записи файла " + store, e);
+            throw new FingerprintFileRepositoryException("Error writing file " + store, e);
         }
 
     }
@@ -78,10 +78,10 @@ class XmlFingerprintFileRepository implements FingerprintFileRepository {
     @Override
     public List<FileStamp> all() throws FingerprintFileRepositoryException {
         if (store == null) {
-            throw new FingerprintFileRepositoryException("Файл не можеть быть null");
+            throw new FingerprintFileRepositoryException("File cannot be null");
         }
         if (!store.exists()) {
-            throw new FingerprintFileRepositoryException("Файл '" + store.getAbsolutePath() + "' должен существовать");
+            throw new FingerprintFileRepositoryException("File '" + store.getAbsolutePath() + "' must be exist");
         }
         List<FileStamp> fileStamps = new ArrayList<>();
         try {
@@ -120,7 +120,7 @@ class XmlFingerprintFileRepository implements FingerprintFileRepository {
             }
             return fileStamps;
         } catch (Exception e) {
-            throw new FingerprintFileRepositoryException("Ошибка при загрузке отпечатков из файла '" + store + "'", e);
+            throw new FingerprintFileRepositoryException("Error loading fingerprint from file '" + store + "'", e);
         }
     }
 }

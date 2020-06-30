@@ -10,10 +10,19 @@ import ru.ezhov.duplicate.files.gui.application.repository.ThumbnailsRepository;
 import ru.ezhov.duplicate.files.stamp.analyzer.model.service.DuplicateId;
 import ru.ezhov.duplicate.files.stamp.analyzer.model.service.FilePath;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.BorderFactory;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.SwingConstants;
+import javax.swing.SwingUtilities;
+import java.awt.BorderLayout;
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.HashSet;
 import java.util.List;
-import java.util.*;
+import java.util.Map;
+import java.util.Set;
 
 public class AnalysePanel extends JPanel implements DuplicateAnalyseCompleteListener, UnmarkToDeleteListener, MarkToDeleteListener, UploadPreparedDeleteFileListener {
 
@@ -38,11 +47,11 @@ public class AnalysePanel extends JPanel implements DuplicateAnalyseCompleteList
         setLayout(new BorderLayout());
         setBorder(BorderFactory.createCompoundBorder(
                 BorderFactory.createEmptyBorder(5, 5, 5, 5),
-                BorderFactory.createTitledBorder("Анализ отпечатков и выбор файлов для удаления")
+                BorderFactory.createTitledBorder("Fingerprint analysis and file selection for deletion")
         ));
 
         panelMock = new JPanel(new BorderLayout());
-        JLabel labelMock = new JLabel("Выберите файл отпечатков и запустите анализ на дубликаты");
+        JLabel labelMock = new JLabel("Select the fingerprint file and run duplicate analysis");
         labelMock.setHorizontalTextPosition(SwingConstants.CENTER);
         labelMock.setHorizontalAlignment(SwingConstants.CENTER);
         panelMock.add(labelMock, BorderLayout.CENTER);
@@ -93,7 +102,7 @@ public class AnalysePanel extends JPanel implements DuplicateAnalyseCompleteList
                 sumSize += filePaths.size();
             }
             if (sumSize == result.size()) {
-                JOptionPane.showMessageDialog(AnalysePanel.this, "Дубликаты не обнаружены", "Информация", JOptionPane.INFORMATION_MESSAGE);
+                JOptionPane.showMessageDialog(AnalysePanel.this, "No duplicates detected", "Information", JOptionPane.INFORMATION_MESSAGE);
             } else {
                 AnalysePanel.this.initAnalyseResultTreeTablePanel(result);
             }

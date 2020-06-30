@@ -44,7 +44,7 @@ class FingerprintFileServiceDefault implements FingerprintFileService {
             return;
         }
         if (file.isDirectory()) {
-            LOG.log(Level.CONFIG, "обработка папки ''{0}''", file.getAbsolutePath());
+            LOG.log(Level.CONFIG, "folder processing ''{0}''", file.getAbsolutePath());
             File[] files;
             if (fileFilter == null) {
                 files = file.listFiles();
@@ -63,7 +63,7 @@ class FingerprintFileServiceDefault implements FingerprintFileService {
             long freeMemoryAfter = Runtime.getRuntime().freeMemory();
             long totalMemoryAfter = Runtime.getRuntime().totalMemory();
 
-            LOG.log(Level.CONFIG, "method=fillMd5FilesRecursive stampedOn=\"память\" freeMemoryBefore={0} freeMemoryAfter={1} totalMemoryBefore={2} totalMemoryAfter={3} file={4}", new Object[]{freeMemoryBefore, freeMemoryAfter, totalMemoryBefore, totalMemoryAfter, file});
+            LOG.log(Level.CONFIG, "method=fillMd5FilesRecursive stampedOn=\"memory\" freeMemoryBefore={0} freeMemoryAfter={1} totalMemoryBefore={2} totalMemoryAfter={3} file={4}", new Object[]{freeMemoryBefore, freeMemoryAfter, totalMemoryBefore, totalMemoryAfter, file});
 
             fingerprintFileListener.stampedOn(new FileStampDefault(stamp, file));
         }

@@ -51,7 +51,7 @@
                             <mainClass>ru.ezhov.duplicate.files.gui.DuplicateFilesGuiApplication</mainClass>
                         </manifest>
                     </archive>
-                    <finalName>${artifactId}</finalName>
+                    <finalName>duplicate-files-application</finalName>
                     <appendAssemblyId>false</appendAssemblyId>
                 </configuration>
                 <executions>

@@ -6,8 +6,12 @@ import ru.ezhov.duplicate.files.gui.application.repository.ThumbnailsRepository;
 import ru.ezhov.duplicate.files.gui.application.stamp.StampPanel;
 import ru.ezhov.duplicate.files.gui.infrastructure.repository.TempDirectoryCacheThumbnailRepository;
 
-import javax.swing.*;
-import java.awt.*;
+import javax.swing.ImageIcon;
+import javax.swing.JFrame;
+import javax.swing.JSplitPane;
+import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
+import java.awt.BorderLayout;
 
 public class DuplicateFilesGuiApplication {
 
@@ -20,7 +24,7 @@ public class DuplicateFilesGuiApplication {
                 //
             }
             try {
-                JFrame frame = new JFrame("Дубликаты");
+                JFrame frame = new JFrame("Duplicates");
                 frame.setIconImage(new ImageIcon(DuplicateFilesGuiApplication.class.getResource("/duplicate_16x16.png")).getImage());
 
                 ThumbnailsRepository thumbnailsRepository = new TempDirectoryCacheThumbnailRepository();
