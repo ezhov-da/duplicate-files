@@ -7,10 +7,13 @@
     <groupId>ru.ezhov</groupId>
     <artifactId>duplicate-files</artifactId>
     <packaging>pom</packaging>
+
     <version>0.0.1</version>
+
     <modules>
         <module>duplicate-files-core</module>
         <module>duplicate-files-gui-swing</module>
+        <module>console-analyzer</module>
     </modules>
 
     <name>duplicate-files</name>
@@ -26,13 +29,13 @@
             <dependency>
                 <groupId>ru.ezhov</groupId>
                 <artifactId>duplicate-files-stamp-generator</artifactId>
-                <version>${parent.version}</version>
+                <version>0.0.1</version>
             </dependency>
 
             <dependency>
                 <groupId>ru.ezhov</groupId>
                 <artifactId>duplicate-files-stamp-analyzer</artifactId>
-                <version>${parent.version}</version>
+                <version>0.0.1</version>
             </dependency>
 
             <dependency>
@@ -61,17 +64,4 @@
             </plugin>
         </plugins>
     </reporting>
-
-    <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <configuration>
-                    <source>1.8</source>
-                    <target>1.8</target>
-                </configuration>
-            </plugin>
-        </plugins>
-    </build>
 </project>

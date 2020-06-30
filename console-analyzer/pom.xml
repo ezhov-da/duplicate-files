@@ -11,17 +11,14 @@
 
     <packaging>jar</packaging>
 
-    <artifactId>duplicate-files-gui-swing</artifactId>
+    <artifactId>duplicate-files-console-analyzer</artifactId>
+
+    <version>0.0.2</version>
 
     <dependencies>
         <dependency>
             <groupId>ru.ezhov</groupId>
             <artifactId>duplicate-files-stamp-generator</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>ru.ezhov</groupId>
-            <artifactId>duplicate-files-stamp-analyzer</artifactId>
         </dependency>
 
         <dependency>
@@ -48,10 +45,10 @@
                     </descriptorRefs>
                     <archive>
                         <manifest>
-                            <mainClass>ru.ezhov.duplicate.files.gui.DuplicateFilesGuiApplication</mainClass>
+                            <mainClass>ru.ezhov.duplicate.files.console.Application</mainClass>
                         </manifest>
                     </archive>
-                    <finalName>duplicate-files-application</finalName>
+                    <finalName>duplicate-files-console-analyzer</finalName>
                     <appendAssemblyId>false</appendAssemblyId>
                 </configuration>
                 <executions>
@@ -68,5 +65,4 @@
             </plugin>
         </plugins>
     </build>
-
 </project>

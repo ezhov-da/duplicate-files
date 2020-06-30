@@ -3,7 +3,6 @@ package ru.ezhov.duplicate.files.stamp.generator.infrastructure.service;
 import ru.ezhov.duplicate.files.stamp.generator.model.domain.FileStampDefault;
 import ru.ezhov.duplicate.files.stamp.generator.model.service.FingerprintFileListener;
 import ru.ezhov.duplicate.files.stamp.generator.model.service.FingerprintFileService;
-import ru.ezhov.duplicate.files.stamp.generator.model.service.FingerprintFileServiceAlreadyStoppedException;
 import ru.ezhov.duplicate.files.stamp.generator.model.service.FingerprintFileServiceException;
 import ru.ezhov.duplicate.files.stamp.generator.model.service.StampGenerator;
 
@@ -15,9 +14,9 @@ import java.util.logging.Logger;
 
 class FingerprintFileServiceDefault implements FingerprintFileService {
     private static final Logger LOG = Logger.getLogger(FingerprintFileServiceDefault.class.getName());
-    private File root;
-    private StampGenerator stampGenerator;
-    private AtomicBoolean runningBruteForce = new AtomicBoolean();
+    private final File root;
+    private final StampGenerator stampGenerator;
+    private final AtomicBoolean runningBruteForce = new AtomicBoolean();
 
     FingerprintFileServiceDefault(File root, StampGenerator stampGenerator) {
         this.root = root;
@@ -35,7 +34,7 @@ class FingerprintFileServiceDefault implements FingerprintFileService {
         }
     }
 
-    public void stop() throws FingerprintFileServiceAlreadyStoppedException {
+    public void stop() {
         runningBruteForce.set(false);
     }
 

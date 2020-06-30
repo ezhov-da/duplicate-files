@@ -145,10 +145,10 @@ public class StampPanel extends JPanel {
     private class StampWorker extends SwingWorker<String, FileStamp> {
         private File root;
         private File report;
-        private FingerprintFileService fingerprintFileService;
-        private FingerprintFileRepository fingerprintFileRepository;
-        private AtomicInteger counterFiles = new AtomicInteger();
-        private List<FileStamp> fileStamps = new ArrayList<>();
+        private final FingerprintFileService fingerprintFileService;
+        private final FingerprintFileRepository fingerprintFileRepository;
+        private final AtomicInteger counterFiles = new AtomicInteger();
+        private final List<FileStamp> fileStamps = new ArrayList<>();
 
         public StampWorker(File root, File report) {
             this.root = root;
