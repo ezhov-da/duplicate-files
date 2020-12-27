@@ -1,4 +1,4 @@
-package ru.ezhov.duplicate.files.stamp.analyzer.model.service;
+package ru.ezhov.duplicate.files.stamp.analyzer.domain;
 
 import java.util.List;
 import java.util.Map;

@@ -1,10 +1,10 @@
 package ru.ezhov.duplicate.files.gui.application.analyse.load;
 
 import ru.ezhov.duplicate.files.stamp.analyzer.infrastructure.service.DuplicateFingerPrintFilesAnalyserServiceFactory;
-import ru.ezhov.duplicate.files.stamp.analyzer.model.service.DuplicateFingerPrintFilesAnalyserService;
-import ru.ezhov.duplicate.files.stamp.analyzer.model.service.DuplicateId;
-import ru.ezhov.duplicate.files.stamp.analyzer.model.service.FilePath;
-import ru.ezhov.duplicate.files.stamp.analyzer.model.service.FingerprintFile;
+import ru.ezhov.duplicate.files.stamp.analyzer.domain.DuplicateFingerPrintFilesAnalyserService;
+import ru.ezhov.duplicate.files.stamp.analyzer.domain.DuplicateId;
+import ru.ezhov.duplicate.files.stamp.analyzer.domain.FilePath;
+import ru.ezhov.duplicate.files.stamp.analyzer.domain.FingerprintFile;
 import ru.ezhov.duplicate.files.stamp.generator.infrastructure.repository.FingerprintFileRepositoryFactory;
 import ru.ezhov.duplicate.files.stamp.generator.model.domain.FileStamp;
 import ru.ezhov.duplicate.files.stamp.generator.model.repository.FingerprintFileRepository;

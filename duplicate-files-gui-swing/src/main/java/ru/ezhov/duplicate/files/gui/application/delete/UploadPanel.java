@@ -4,7 +4,7 @@ import org.w3c.dom.Node;
 import org.w3c.dom.NodeList;
 import org.xml.sax.InputSource;
 import ru.ezhov.duplicate.files.gui.application.delete.domain.PreparedToDelete;
-import ru.ezhov.duplicate.files.stamp.analyzer.model.service.FilePath;
+import ru.ezhov.duplicate.files.stamp.analyzer.domain.FilePath;
 
 import javax.swing.BorderFactory;
 import javax.swing.DefaultListModel;

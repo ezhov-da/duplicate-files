@@ -2,7 +2,7 @@ package ru.ezhov.duplicate.files.gui.infrastructure.repository;
 
 import net.coobird.thumbnailator.Thumbnails;
 import ru.ezhov.duplicate.files.gui.application.repository.ThumbnailsRepository;
-import ru.ezhov.duplicate.files.stamp.analyzer.model.service.FilePath;
+import ru.ezhov.duplicate.files.stamp.analyzer.domain.FilePath;
 
 import javax.imageio.ImageIO;
 import javax.xml.bind.DatatypeConverter;

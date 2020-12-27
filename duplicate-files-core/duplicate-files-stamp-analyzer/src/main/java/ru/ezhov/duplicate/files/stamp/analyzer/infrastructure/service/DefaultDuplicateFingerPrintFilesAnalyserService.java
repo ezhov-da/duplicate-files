@@ -1,9 +1,9 @@
 package ru.ezhov.duplicate.files.stamp.analyzer.infrastructure.service;
 
-import ru.ezhov.duplicate.files.stamp.analyzer.model.service.DuplicateFingerPrintFilesAnalyserService;
-import ru.ezhov.duplicate.files.stamp.analyzer.model.service.DuplicateId;
-import ru.ezhov.duplicate.files.stamp.analyzer.model.service.FilePath;
-import ru.ezhov.duplicate.files.stamp.analyzer.model.service.FingerprintFile;
+import ru.ezhov.duplicate.files.stamp.analyzer.domain.DuplicateFingerPrintFilesAnalyserService;
+import ru.ezhov.duplicate.files.stamp.analyzer.domain.DuplicateId;
+import ru.ezhov.duplicate.files.stamp.analyzer.domain.FilePath;
+import ru.ezhov.duplicate.files.stamp.analyzer.domain.FingerprintFile;
 
 import java.util.ArrayList;
 import java.util.HashMap;

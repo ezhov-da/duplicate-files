@@ -1,11 +1,11 @@
 package ru.ezhov.duplicate.files.stamp.analyzer.infrastructure.service;
 
-import ru.ezhov.duplicate.files.stamp.analyzer.model.service.DuplicateId;
+import ru.ezhov.duplicate.files.stamp.analyzer.domain.DuplicateId;
 
 import java.util.Objects;
 
 class DuplicateIdImpl implements DuplicateId {
-    private String value;
+    private final String value;
 
     DuplicateIdImpl(String value) {
         this.value = value;

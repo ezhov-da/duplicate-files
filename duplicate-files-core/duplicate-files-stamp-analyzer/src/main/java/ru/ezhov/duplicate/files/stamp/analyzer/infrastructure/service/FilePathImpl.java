@@ -1,11 +1,11 @@
 package ru.ezhov.duplicate.files.stamp.analyzer.infrastructure.service;
 
-import ru.ezhov.duplicate.files.stamp.analyzer.model.service.FilePath;
+import ru.ezhov.duplicate.files.stamp.analyzer.domain.FilePath;
 
 import java.util.Objects;
 
 class FilePathImpl implements FilePath {
-    private String path;
+    private final String path;
 
     FilePathImpl(String path) {
         this.path = path;

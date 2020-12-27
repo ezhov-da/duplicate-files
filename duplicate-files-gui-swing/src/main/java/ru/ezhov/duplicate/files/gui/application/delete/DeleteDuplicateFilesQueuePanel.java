@@ -4,7 +4,7 @@ import ru.ezhov.duplicate.files.gui.application.MarkToDeleteListener;
 import ru.ezhov.duplicate.files.gui.application.UnmarkToDeleteListener;
 import ru.ezhov.duplicate.files.gui.application.delete.domain.PreparedToDelete;
 import ru.ezhov.duplicate.files.gui.application.repository.ThumbnailsRepository;
-import ru.ezhov.duplicate.files.stamp.analyzer.model.service.FilePath;
+import ru.ezhov.duplicate.files.stamp.analyzer.domain.FilePath;
 
 import javax.swing.BorderFactory;
 import javax.swing.BoxLayout;

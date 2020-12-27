@@ -11,8 +11,8 @@ import ru.ezhov.duplicate.files.gui.application.analyse.result.domain.DuplicateF
 import ru.ezhov.duplicate.files.gui.application.analyse.result.domain.Md5Hash;
 import ru.ezhov.duplicate.files.gui.application.delete.UploadPreparedDeleteFileListener;
 import ru.ezhov.duplicate.files.gui.application.repository.ThumbnailsRepository;
-import ru.ezhov.duplicate.files.stamp.analyzer.model.service.DuplicateId;
-import ru.ezhov.duplicate.files.stamp.analyzer.model.service.FilePath;
+import ru.ezhov.duplicate.files.stamp.analyzer.domain.DuplicateId;
+import ru.ezhov.duplicate.files.stamp.analyzer.domain.FilePath;
 
 import javax.swing.Box;
 import javax.swing.BoxLayout;

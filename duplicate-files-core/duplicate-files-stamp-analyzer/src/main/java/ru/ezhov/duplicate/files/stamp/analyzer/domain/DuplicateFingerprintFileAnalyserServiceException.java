@@ -1,4 +1,4 @@
-package ru.ezhov.duplicate.files.stamp.analyzer.model.service;
+package ru.ezhov.duplicate.files.stamp.analyzer.domain;
 
 public class DuplicateFingerprintFileAnalyserServiceException extends Exception {
     public DuplicateFingerprintFileAnalyserServiceException() {

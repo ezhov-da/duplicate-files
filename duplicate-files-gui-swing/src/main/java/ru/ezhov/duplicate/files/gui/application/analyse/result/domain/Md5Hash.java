@@ -1,6 +1,6 @@
 package ru.ezhov.duplicate.files.gui.application.analyse.result.domain;
 
-import ru.ezhov.duplicate.files.stamp.analyzer.model.service.DuplicateId;
+import ru.ezhov.duplicate.files.stamp.analyzer.domain.DuplicateId;
 
 public class Md5Hash {
     String id;
